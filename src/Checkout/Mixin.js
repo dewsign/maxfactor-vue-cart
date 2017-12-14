@@ -1,0 +1,579 @@
+import collect from 'collect.js'
+import Make from '../Helpers/Make'
+import Tell from '../Helpers/Tell'
+import FormMixin from '../Mixins/Form'
+import { CheckoutStages as Stage } from '../Schema'
+
+export default {
+    data() {
+        return {
+            action: '',
+            waitingForResult: false,
+            showMobileCheckoutSummary: false,
+        }
+    },
+
+    mixins: [
+        FormMixin,
+    ],
+
+    computed: {
+        /**
+         * Global reference to all checkouts. Each checkout should be
+         * self-contained to allow someone to pay for a quotation or postage
+         * charge from the CMS, without this affecting their basket.
+         */
+        checkoutCollections() {
+            return collect(this.$root.checkout.checkouts)
+        },
+
+        /**
+         * The currentCheckout object should be used for all checkout relted
+         * functionality as this is linked to stored checkouts and makes it
+         * easy to switch between them.
+         */
+        currentCheckout: {
+            get() {
+                return this.$root.activeCheckout
+            },
+            set(value) {
+                this.$root.activeCheckout = value
+            },
+        },
+
+        /**
+         * Quickly access to the payment section
+         */
+        payment() {
+            return this.currentCheckout.payment
+        },
+
+        hasMounted: {
+            get() {
+                return this.$root.checkoutMounted
+            },
+            set(value) {
+                this.$root.checkoutMounted = value
+            },
+        },
+
+        /**
+         * Gather billing details from the form and format as stripe object
+         */
+        stripeData() {
+            return {
+                name: this.currentCheckout.billing.nameoncard,
+                address_line1: this.currentCheckout.billing.address,
+                address_line2: this.currentCheckout.billing.address_2 || '',
+                address_city: this.currentCheckout.billing.address_city,
+                address_state: this.currentCheckout.billing.county || '',
+                address_zip: this.currentCheckout.billing.address_postcode,
+                address_country: this.currentCheckout.billing.address_country || '',
+            }
+        },
+
+        hasPaymentErrors() {
+            return collect(this.currentCheckout.payment.error).contains('code')
+        },
+
+        hasPaymentToken() {
+            return collect(this.currentCheckout.payment.token).contains('id')
+        },
+
+        shippingCountry() {
+            return this.currentCheckout.shipping.address_country
+        },
+
+        useShippingForBilling() {
+            return this.currentCheckout.useShipping
+        },
+
+        taxChargable() {
+            if (!this.currentCheckout.taxApplicable) {
+                return false
+            }
+            if (this.currentCheckout.taxOptional && this.currentCheckout.user.vat_number) {
+                return false
+            }
+
+            return true
+        },
+
+        customCheckoutItems() {
+            return Tell.serverVariable('customCheckoutItems')
+        },
+
+        /**
+         * Determine if the current checkout is custom or regular cart
+         */
+        isCustomCheckout() {
+            const checkoutId = Tell.serverVariable('uid')
+
+            if (!checkoutId) return false
+            if (!window.location.href.indexOf(checkoutId)) return false
+            if (this.activeCartCollection.uid === checkoutId) return false
+
+            return true
+        },
+
+        /**
+         * Helper to determine if the user can edit the shipping address during
+         * the checkout process.
+         */
+        canEditShipping() {
+            return !this.isCustomCheckout
+        },
+
+        nextStage: {
+            get() {
+                return this.$root.nextCheckoutStage
+            },
+            set(stage) {
+                this.$root.nextCheckoutStage = stage
+            },
+        },
+
+        suppliedUid() {
+            return Tell.serverVariable('uid')
+        },
+
+        suppliedBillingAddress() {
+            return Tell.serverVariable(`checkout.billing.${this.suppliedUid}`)
+        },
+
+        billingIsEmpty() {
+            if (this.currentCheckout.billing.surname) return false
+            if (this.currentCheckout.billing.address) return false
+            if (this.currentCheckout.billing.address_postcode) return false
+            if (this.currentCheckout.billing.address_country) return false
+
+            return true
+        },
+
+    },
+
+    watch: {
+        payment: {
+            handler() {
+                if (!this.waitingForResult) return
+
+                this.loading = true
+
+                if (this.hasPaymentErrors) return
+
+                if (!this.hasPaymentToken) return
+
+                this.submitCheckoutToServer()
+            },
+            deep: true,
+        },
+
+        useShippingForBilling(newValue) {
+            if (newValue === true) {
+                this.syncShippingToBilling()
+                return
+            }
+
+            if (this.isCustomCheckout && this.billingIsEmpty) {
+                if (this.suppliedBillingAddress) {
+                    this.currentCheckout.billing = this.suppliedBillingAddress
+                }
+
+                return
+            }
+
+            if (!this.isCustomCheckout) this.clearBillingAddress()
+        },
+
+        customCheckoutItems(items) {
+            this.log(items)
+        },
+
+    },
+
+    methods: {
+        syncShippingItemToBilling(item) {
+            this.currentCheckout.billing[item] = this.currentCheckout.shipping[item]
+        },
+
+        clearBillingItem(item) {
+            this.currentCheckout.billing[item] = ''
+        },
+
+        syncShippingToBilling() {
+            collect([
+                'firstname',
+                'surname',
+                'company',
+                'telephone',
+                'address',
+                'address_2',
+                'address_3',
+                'address_city',
+                'address_postcode',
+                'address_country',
+            ]).map(item => this.syncShippingItemToBilling(item))
+        },
+
+        clearBillingAddress() {
+            collect([
+                'firstname',
+                'surname',
+                'company',
+                'telephone',
+                'address',
+                'address_2',
+                'address_3',
+                'address_city',
+                'address_postcode',
+                'address_country',
+            ]).map(item => this.clearBillingItem(item))
+        },
+
+        /**
+         * Get the content of a specific checkout
+         *
+         * @param {string} id
+         */
+        checkoutCollection(id = null) {
+            const checkoutId = id || Tell.serverVariable('checkoutId', '')
+
+            return this.checkoutCollections.where('uid', checkoutId)
+        },
+
+        /**
+         * Creates a new checkout with a cloned set of data
+         * (e.g. the current cart)
+         *
+         * @param {string} id
+         * @param {object} data
+         */
+        createCheckout(id, data) {
+            const newCheckoutData = Make.cloneOf(data)
+            if (!this.checkoutCollection(id).count()) {
+                if (this.isLoggedIn) newCheckoutData.user = Make.cloneOf(this.userData)
+                this.checkoutCollections.push(newCheckoutData)
+            } else {
+                this.replaceCheckout(id, newCheckoutData)
+            }
+        },
+
+        /**
+         * The the current checkout from one of the available checkouts
+         * @param {string} id
+         */
+        setActiveCheckout(id, force = false) {
+            if (
+                this.currentCheckout.uid === this.checkoutCollection(id).first().uid &&
+                !force
+            ) {
+                return
+            }
+
+            this.currentCheckout = this.checkoutCollection(id).first()
+        },
+
+        /**
+         * Replace the items in the existing checkout with the new items passed
+         * in from the data. Does not replace any other details (as the user
+         * might already have started the checkout process and we don't want to
+         * replace this data.)
+         *
+         * @param {string} id
+         * @param {object} data
+         */
+        replaceCheckout(id, data) {
+            if (this.currentCheckout.uid !== id) return
+
+            this.currentCheckout.items = Make.cloneOf(data.items)
+            this.currentCheckout.notes = Make.cloneOf(data.notes)
+            this.checkoutCollection(id).first().items = Make.cloneOf(data.items)
+        },
+
+        /**
+         * Ensures the checkout data exists and the url includes the checkout id
+         *
+         * @param {*} event
+         * @param {string} id
+         */
+        prepareCheckout(event, id = null) {
+            this.action = event.target.href
+            const checkoutId = id || Tell.serverVariable('uid') || this.activeCartCollection.uid
+
+            if (checkoutId === this.activeCartCollection.uid) {
+                this.createCheckout(checkoutId, this.activeCartCollection)
+            } else if (!this.checkoutCollection(checkoutId).count()) {
+                const newCart = Make.cloneOf(this.activeCartCollection)
+
+                newCart.items = Tell.serverVariable('customCheckoutItems')
+
+                this.createCheckout(checkoutId, newCart)
+            }
+
+            this.setActiveCheckout(checkoutId)
+
+            /**
+             * Sync the shipping address of the active checkout to the billing adress
+             */
+            if (this.useShippingForBilling) this.syncShippingToBilling()
+
+            this.submitCheckoutToServer()
+        },
+
+        /**
+         * Client-side process the checkout and get a stripe token. See the watch
+         * section for the 'payment' watch which acts as a callback when stripe
+         * has returned a token or error.
+         */
+        processCheckout(event) {
+            this.action = event.target.href
+            this.currentCheckout.payment.error = {}
+            this.waitingForResult = true
+            this.emit('createToken', this.stripeData)
+        },
+
+        /**
+         * Load and activate custom checkout if accessed and available
+         */
+        loadCustomCheckout(checkoutId) {
+            if (this.checkoutCollection(checkoutId).count()) {
+                if (window.location.href.indexOf(checkoutId) > -1) {
+                    this.setActiveCheckout(checkoutId)
+                }
+
+                return
+            }
+
+            const newCart = Make.cloneOf(this.activeCartCollection)
+
+            newCart.uid = checkoutId
+            newCart.useShipping = false
+            newCart.items = Tell.serverVariable(`checkout.${checkoutId}`)
+            newCart.shipping = Tell.serverVariable(`checkout.shipping.${checkoutId}`)
+            newCart.billing = Tell.serverVariable(`checkout.billing.${checkoutId}`)
+            newCart.user = Tell.serverVariable(`checkout.user.${checkoutId}`)
+
+            this.createCheckout(checkoutId, newCart)
+
+            if (window.location.href.indexOf(checkoutId) <= -1) return
+
+            this.setActiveCheckout(checkoutId)
+            this.loadCountryDetails()
+        },
+
+        /**
+         * All client side work is done, pass everything to the server to
+         * validate and process
+         */
+        submitCheckoutToServer() {
+            if (!this.action) return
+
+            const checkoutUrl = this.action.replace('UUID', this.currentCheckout.uid)
+
+            this.errors = {}
+
+            window.axios.post(checkoutUrl, {
+                stripe: this.payment,
+                checkout: this.currentCheckout,
+            }).then((response) => {
+                this.loading = false
+
+                if (!response) {
+                    this.errors = {
+                        message: 'No response',
+                    }
+                    return
+                }
+
+                /**
+                 * If this isn't a payment process continue to next stage
+                 */
+                if (!response.data.paymentResponse) {
+                    this.continueCheckout()
+                    return
+                }
+
+                if (response.data.paymentResponse.error) {
+                    this.errors = response.data.paymentResponse.error
+                    return
+                }
+
+                if (response.data.paymentResponse.status === 'succeeded') {
+                    this.currentCheckout.payment.result = response.data
+                    this.continueCheckout()
+                }
+            }).catch((error) => {
+                this.loading = false
+                this.errors = error.response.data
+            })
+        },
+
+        /**
+         * Navigate to the next stage of the checkout process
+         *
+         * @param {string?} id
+         */
+        continueCheckout(id = null) {
+            const checkoutId = id || this.currentCheckout.uid
+            if (!this.action) return
+
+            const checkoutUrl = this.action.replace('UUID', checkoutId)
+            if (checkoutUrl === window.location.href) return
+
+            this.progressCheckoutStage()
+
+            this.action = ''
+            this.loading = false
+            window.location.href = checkoutUrl
+        },
+
+        /**
+         * Toggle checkout order summary section
+         * on mobile and tablet devices.
+         */
+        toggleMobileCheckoutSummary() {
+            this.showMobileCheckoutSummary = !this.showMobileCheckoutSummary
+        },
+
+        setCheckoutStage(stage = null) {
+            if (!stage) return
+
+            const stageMethod = `setCheckoutStage${Make.ucFirst(stage)}`
+            if (typeof this[stageMethod] === 'function') this[stageMethod]()
+        },
+
+        /**
+         * Clear up after a checkout has been completed. Called when the page
+         * first loads.
+         */
+        setCheckoutStageComplete() {
+            if (this.handleInvalidCheckout(Stage.COMPLETE)) return
+
+            this.currentCheckout.stage = Stage.COMPLETE
+
+            if (this.activeCartCollection.uid === this.currentCheckout.uid) this.deleteCart()
+        },
+
+        /**
+         * Prepare the third checkout stage (payment details). Called when the
+         * page first loads.
+         */
+        setCheckoutStagePayment() {
+            if (this.handleInvalidCheckout(Stage.PAYMENT)) return
+
+            this.prepareNextStage(Stage.PAYMENT, Stage.COMPLETE)
+        },
+
+        /**
+         * Prepare the second checkout stage for shipping method. Called when the
+         * page first loads.
+         */
+        setCheckoutStageShipping() {
+            if (this.handleInvalidCheckout(Stage.SHIPPING)) return
+
+            this.prepareNextStage(Stage.SHIPPING, Stage.PAYMENT)
+        },
+
+        /**
+         * Prepare the first checkout stage. Called when the page first loads.
+         */
+        setCheckoutStageDefault() {
+            if (this.handleInvalidCheckout(Stage.DEFAULT)) return
+
+            this.prepareNextStage(Stage.DEFAULT, Stage.SHIPPING)
+        },
+
+        /**
+         * Delete items from the cart and give it a new ID
+         */
+        deleteCart() {
+            this.activeCartCollection.items = []
+            this.activeCartCollection.uid = Tell.randomUid()
+        },
+
+        progressCheckoutStage() {
+            if (!this.currentCheckout.stage) this.currentCheckout.stage = 0
+
+            if (this.currentCheckout.stage < Stage.COMPLETE && this.nextStage) {
+                this.currentCheckout.stage = this.nextStage
+            }
+        },
+
+        /**
+         * Set the current checkout stage (only if moving forward) and prepare
+         * the next stage to allow the user to move forward.
+         */
+        prepareNextStage(stageFrom, stageTo) {
+            this.nextStage = stageTo
+
+            if (this.currentCheckout.stage < stageFrom) this.currentCheckout.stage = stageFrom
+        },
+
+        /**
+         * Check that the current checkout step is allowed to be accessed.
+         * Returns false if the stage is valid.
+         */
+        handleInvalidCheckout(checkoutView = Stage.DEFAULT) {
+            if (!this.currentCheckout.stage) return false
+
+            if (this.currentCheckout.stage === checkoutView) return false
+
+            if (this.currentCheckout.stage >= checkoutView &&
+                this.currentCheckout.stage < Stage.COMPLETE) return false
+
+            window.location.href = '/cart'
+            return true
+        },
+
+        loadCountryDetails() {
+            if (!this.shippingCountry) return
+
+            this.loading = true
+
+            window.axios.post('/account/location', {
+                country: this.shippingCountry,
+            }).then((response) => {
+                this.loading = false
+
+                if (response.data.errors) {
+                    this.errors = response.data.errors
+                }
+
+                if (response.data.countryCode) {
+                    this.currentCheckout.taxApplicable = response.data.taxApplicable
+                    this.currentCheckout.taxOptional = response.data.taxOptional
+                    this.currentCheckout.shippingMethod = {
+                        id: 0,
+                        name: '',
+                        price: 0.00,
+                        taxRate: 0.00,
+                        poa: false,
+                    }
+                }
+            }).catch((error) => {
+                this.loading = false
+                this.errors = error
+            })
+        },
+
+    },
+
+    /**
+     * Load custom checkout items if required
+     */
+    mounted() {
+        if (this.hasMounted) return
+
+        this.hasMounted = true
+
+        const uid = Tell.serverVariable('uid')
+
+        if (!uid) return
+
+        this.loadCustomCheckout(uid)
+
+        const stage = Tell.serverVariable(`stage.${uid}`)
+        if (stage) this.setCheckoutStage(stage)
+    },
+
+}
