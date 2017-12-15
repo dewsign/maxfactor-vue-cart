@@ -1,4 +1,5 @@
 import RollupPluginVue from 'rollup-plugin-vue'
+import RollupPluginBabel from 'rollup-plugin-babel'
 
 export default {
     input: 'src/index.js',
@@ -14,5 +15,6 @@ export default {
     ],
     plugins: [
         RollupPluginVue(),
+        RollupPluginBabel(),
     ],
 }

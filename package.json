@@ -1,6 +1,6 @@
 {
     "name": "maxfactor-vue-cart",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Maxfactor Vue.js Shopping Cart",
     "main": "./dist/index.js",
     "scripts": {
@@ -15,6 +15,7 @@
     "license": "MIT",
     "devDependencies": {
         "babel-eslint": "^8.0.2",
+        "babel-preset-es2015-rollup": "^3.0.0",
         "browser-sync": "^2.18.13",
         "browser-sync-webpack-plugin": "^1.2.0",
         "eslint": "^4.12.1",
@@ -32,6 +33,7 @@
         "collect.js": "^4.0.0",
         "maxfactor-vue-datastore": "0.0.2",
         "maxfactor-vue-eventhandler": "0.0.4",
+        "rollup-plugin-babel": "^3.0.2",
         "vue": "^2.5.9",
         "vue-localstorage": "^0.5.0"
     }
