@@ -9,7 +9,6 @@ export default {
     },
     external: [
         'maxfactor-vue-datastore',
-        'maxfactor-vue-eventhandler',
         'collect.js',
         'vue',
     ],

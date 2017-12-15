@@ -1,6 +1,6 @@
 {
     "name": "maxfactor-vue-cart",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Maxfactor Vue.js Shopping Cart",
     "main": "./dist/index.js",
     "scripts": {
@@ -27,13 +27,12 @@
         "laravel-mix": "^1.7.2",
         "lint-staged": "^6.0.0",
         "markdownlint-cli": "^0.5.0",
+        "rollup-plugin-babel": "^3.0.2",
         "rollup-plugin-vue": "^3.0.0"
     },
     "dependencies": {
         "collect.js": "^4.0.0",
         "maxfactor-vue-datastore": "0.0.2",
-        "maxfactor-vue-eventhandler": "0.0.4",
-        "rollup-plugin-babel": "^3.0.2",
         "vue": "^2.5.9",
         "vue-localstorage": "^0.5.0"
     }
