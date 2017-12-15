@@ -155,7 +155,10 @@ export default {
     watch: {
         payment: {
             handler() {
-                if (!this.waitingForResult) return
+                if (!this.waitingForResult) {
+                    this.loading = false
+                    return
+                }
 
                 this.loading = true
 
@@ -326,9 +329,10 @@ export default {
          * has returned a token or error.
          */
         processCheckout(event) {
-            this.action = event.target.href
+            this.action = event.target.dataset.url
             this.currentCheckout.payment.error = {}
             this.waitingForResult = true
+            this.loading = true
             this.emit('createToken', this.stripeData)
         },
 

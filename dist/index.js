@@ -1,11 +1,5 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var DatastoreMixin = _interopDefault(require('maxfactor-vue-datastore'));
-var collect = _interopDefault(require('collect.js'));
+import DatastoreMixin from 'maxfactor-vue-datastore';
+import collect from 'collect.js';
 
 var ShippingData = {
     firstname: '',
@@ -763,7 +757,10 @@ var MaxfactorCheckoutMixin = {
     watch: {
         payment: {
             handler: function handler() {
-                if (!this.waitingForResult) return;
+                if (!this.waitingForResult) {
+                    this.loading = false;
+                    return;
+                }
 
                 this.loading = true;
 
@@ -925,9 +922,10 @@ var MaxfactorCheckoutMixin = {
          * has returned a token or error.
          */
         processCheckout: function processCheckout(event) {
-            this.action = event.target.href;
+            this.action = event.target.dataset.url;
             this.currentCheckout.payment.error = {};
             this.waitingForResult = true;
+            this.loading = true;
             this.emit('createToken', this.stripeData);
         },
 
@@ -1202,8 +1200,5 @@ var index = {
     }
 };
 
-exports['default'] = index;
-exports.MaxfactorAccountData = Data;
-exports.MaxfactorCartData = Data$1;
-exports.MaxfactorCartSchema = Schema;
-exports.MaxfactorCheckoutData = Data$2;
+export { Data as MaxfactorAccountData, Data$1 as MaxfactorCartData, Schema as MaxfactorCartSchema, Data$2 as MaxfactorCheckoutData };
+export default index;
