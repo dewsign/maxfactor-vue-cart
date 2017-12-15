@@ -9,16 +9,12 @@ import MaxfactorCartMixin from './Cart/Mixin'
 import MaxfactorCheckoutData from './Checkout/Data'
 import MaxfactorCheckoutMixin from './Checkout/Mixin'
 
-// Components
-import ComponentCartTest from './Cart/CartTest.vue'
-
 export default {
     install(Vue) {
         Vue.use(Datastore)
         Vue.mixin(MaxfactorAccountMixin)
         Vue.mixin(MaxfactorCartMixin)
         Vue.mixin(MaxfactorCheckoutMixin)
-        Vue.component('cart-test', ComponentCartTest)
     },
 }
 
