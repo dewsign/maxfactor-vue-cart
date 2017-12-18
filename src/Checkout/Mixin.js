@@ -160,11 +160,15 @@ export default {
                     return
                 }
 
-                this.loading = true
+                if (this.hasPaymentErrors) {
+                    this.loading = false
+                    return
+                }
 
-                if (this.hasPaymentErrors) return
-
-                if (!this.hasPaymentToken) return
+                if (!this.hasPaymentToken) {
+                    this.loading = false
+                    return
+                }
 
                 this.submitCheckoutToServer()
             },
@@ -300,7 +304,9 @@ export default {
          * @param {string} id
          */
         prepareCheckout(event, id = null) {
-            this.action = event.target.href
+            this.loading = true
+            this.action = event.target.dataset.url
+
             const checkoutId = id || Tell.serverVariable('uid') || this.activeCartCollection.uid
 
             if (checkoutId === this.activeCartCollection.uid) {
@@ -370,7 +376,10 @@ export default {
          * validate and process
          */
         submitCheckoutToServer() {
-            if (!this.action) return
+            if (!this.action) {
+                this.loading = false
+                return
+            }
 
             const checkoutUrl = this.action.replace('UUID', this.currentCheckout.uid)
 
@@ -380,12 +389,11 @@ export default {
                 stripe: this.payment,
                 checkout: this.currentCheckout,
             }).then((response) => {
-                this.loading = false
-
                 if (!response) {
                     this.errors = {
                         message: 'No response',
                     }
+                    this.loading = false
                     return
                 }
 
@@ -419,15 +427,20 @@ export default {
          */
         continueCheckout(id = null) {
             const checkoutId = id || this.currentCheckout.uid
-            if (!this.action) return
+            if (!this.action) {
+                this.loading = false
+                return
+            }
 
             const checkoutUrl = this.action.replace('UUID', checkoutId)
-            if (checkoutUrl === window.location.href) return
+            if (checkoutUrl === window.location.href) {
+                this.loading = false
+                return
+            }
 
             this.progressCheckoutStage()
 
             this.action = ''
-            this.loading = false
             window.location.href = checkoutUrl
         },
 

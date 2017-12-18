@@ -762,11 +762,15 @@ var MaxfactorCheckoutMixin = {
                     return;
                 }
 
-                this.loading = true;
+                if (this.hasPaymentErrors) {
+                    this.loading = false;
+                    return;
+                }
 
-                if (this.hasPaymentErrors) return;
-
-                if (!this.hasPaymentToken) return;
+                if (!this.hasPaymentToken) {
+                    this.loading = false;
+                    return;
+                }
 
                 this.submitCheckoutToServer();
             },
@@ -892,7 +896,9 @@ var MaxfactorCheckoutMixin = {
         prepareCheckout: function prepareCheckout(event) {
             var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
-            this.action = event.target.href;
+            this.loading = true;
+            this.action = event.target.dataset.url;
+
             var checkoutId = id || Tell.serverVariable('uid') || this.activeCartCollection.uid;
 
             if (checkoutId === this.activeCartCollection.uid) {
@@ -967,7 +973,10 @@ var MaxfactorCheckoutMixin = {
         submitCheckoutToServer: function submitCheckoutToServer() {
             var _this3 = this;
 
-            if (!this.action) return;
+            if (!this.action) {
+                this.loading = false;
+                return;
+            }
 
             var checkoutUrl = this.action.replace('UUID', this.currentCheckout.uid);
 
@@ -977,12 +986,11 @@ var MaxfactorCheckoutMixin = {
                 stripe: this.payment,
                 checkout: this.currentCheckout
             }).then(function (response) {
-                _this3.loading = false;
-
                 if (!response) {
                     _this3.errors = {
                         message: 'No response'
                     };
+                    _this3.loading = false;
                     return;
                 }
 
@@ -1019,15 +1027,20 @@ var MaxfactorCheckoutMixin = {
             var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
             var checkoutId = id || this.currentCheckout.uid;
-            if (!this.action) return;
+            if (!this.action) {
+                this.loading = false;
+                return;
+            }
 
             var checkoutUrl = this.action.replace('UUID', checkoutId);
-            if (checkoutUrl === window.location.href) return;
+            if (checkoutUrl === window.location.href) {
+                this.loading = false;
+                return;
+            }
 
             this.progressCheckoutStage();
 
             this.action = '';
-            this.loading = false;
             window.location.href = checkoutUrl;
         },
 
