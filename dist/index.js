@@ -531,7 +531,7 @@ var Data$2 = {
 
     methods: {
         countryHasChanged: function countryHasChanged(newCountry, oldCountry) {
-            if (!newCountry || !oldCountry) return false;
+            if (!newCountry) return false;
             if (newCountry === oldCountry) return false;
 
             return true;
@@ -928,7 +928,7 @@ var MaxfactorCheckoutMixin = {
          * has returned a token or error.
          */
         processCheckout: function processCheckout(event) {
-            this.action = event.target.dataset.url;
+            this.action = event.target.getAttribute('data-url');
             this.currentCheckout.payment.error = {};
             this.waitingForResult = true;
             this.loading = true;
