@@ -47,7 +47,7 @@ export default {
 
     methods: {
         countryHasChanged(newCountry, oldCountry) {
-            if (!newCountry || !oldCountry) return false
+            if (!newCountry) return false
             if (newCountry === oldCountry) return false
 
             return true
