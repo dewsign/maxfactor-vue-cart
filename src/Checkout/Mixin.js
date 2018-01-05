@@ -335,7 +335,7 @@ export default {
          * has returned a token or error.
          */
         processCheckout(event) {
-            this.action = event.target.dataset.url
+            this.action = event.target.getAttribute('data-url')
             this.currentCheckout.payment.error = {}
             this.waitingForResult = true
             this.loading = true
