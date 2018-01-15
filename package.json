@@ -2,9 +2,9 @@
     "name": "maxfactor-vue-cart",
     "version": "0.0.9",
     "description": "Maxfactor Vue.js Shopping Cart",
-    "main": "./dist/index.js",
+    "main": "dist/index.js",
     "files": [
-        "./dist/index.js"
+        "dist/index.js"
     ],
     "scripts": {
         "build": "rollup -c",
