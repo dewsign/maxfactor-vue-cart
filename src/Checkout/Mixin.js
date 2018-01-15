@@ -556,7 +556,7 @@ export default {
                     this.errors = response.data.errors
                 }
 
-                if (response.data.countryCode) {
+                if (response.data.countryCode && this.currentCheckout.stage < Stage.SHIPPING) {
                     this.currentCheckout.taxApplicable = response.data.taxApplicable
                     this.currentCheckout.taxOptional = response.data.taxOptional
                     this.currentCheckout.shippingMethod = {

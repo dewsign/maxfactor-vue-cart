@@ -1166,7 +1166,7 @@ var MaxfactorCheckoutMixin = {
                     _this4.errors = response.data.errors;
                 }
 
-                if (response.data.countryCode) {
+                if (response.data.countryCode && _this4.currentCheckout.stage < CheckoutStages.SHIPPING) {
                     _this4.currentCheckout.taxApplicable = response.data.taxApplicable;
                     _this4.currentCheckout.taxOptional = response.data.taxOptional;
                     _this4.currentCheckout.shippingMethod = {
