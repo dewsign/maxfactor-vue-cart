@@ -1,6 +1,6 @@
 {
     "name": "maxfactor-vue-cart",
-    "version": "0.0.10",
+    "version": "0.0.11",
     "description": "Maxfactor Vue.js Shopping Cart",
     "main": "dist/index.js",
     "files": [
