@@ -204,6 +204,19 @@ var MaxfactorAccountMixin = {
             if (this.currentCheckout && this.currentCheckout.shipping !== {}) {
                 this.currentCheckout.user = collect(Make.cloneOf(this.userData)).except(['error', 'token']).all();
             }
+        },
+
+
+        /**
+         * Global helper to indicate if a user is logged in
+         */
+        isLoggedIn: {
+            get: function get() {
+                return this.$root.account.loggedIn;
+            },
+            set: function set(value) {
+                this.$root.account.loggedIn = value;
+            }
         }
     },
 

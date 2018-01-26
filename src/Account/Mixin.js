@@ -45,6 +45,18 @@ export default {
                 this.currentCheckout.user = collect(Make.cloneOf(this.userData)).except(['error', 'token']).all()
             }
         },
+
+        /**
+         * Global helper to indicate if a user is logged in
+         */
+        isLoggedIn: {
+            get() {
+                return this.$root.account.loggedIn
+            },
+            set(value) {
+                this.$root.account.loggedIn = value
+            },
+        },
     },
 
     /**
