@@ -1,7 +1,7 @@
+import { FormMixin } from 'maxfactor-vue-support'
 import collect from 'collect.js'
 import Make from '../Helpers/Make'
 import Tell from '../Helpers/Tell'
-import FormMixin from '../Mixins/Form'
 import { CheckoutStages as Stage } from '../Schema'
 
 export default {
@@ -385,7 +385,7 @@ export default {
 
             this.errors = {}
 
-            window.axios.post(checkoutUrl, {
+            this.postForm(checkoutUrl, {
                 stripe: this.payment,
                 checkout: this.currentCheckout,
             }).then((response) => {
@@ -547,7 +547,7 @@ export default {
 
             this.loading = true
 
-            window.axios.post('/account/location', {
+            this.postForm('/account/location', {
                 country: this.shippingCountry,
             }).then((response) => {
                 this.loading = false
