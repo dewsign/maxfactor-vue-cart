@@ -37,6 +37,7 @@
         "babel-core": "^6.26.0",
         "collect.js": "^4.0.7",
         "maxfactor-vue-datastore": "0.0.3",
+        "maxfactor-vue-support": "0.0.1",
         "vue": "^2.5.13",
         "vue-localstorage": "^0.6.1"
     }
