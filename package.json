@@ -1,6 +1,6 @@
 {
     "name": "maxfactor-vue-cart",
-    "version": "0.0.11",
+    "version": "0.2.1",
     "description": "Maxfactor Vue.js Shopping Cart",
     "main": "dist/index.js",
     "files": [
@@ -11,7 +11,7 @@
         "dev": "NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
         "hot": "NODE_ENV=development webpack-dev-server --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
         "precommit": "lint-staged",
-        "prepublish": "npm run build && npm version patch",
+        "prepublish": "npm run build",
         "production": "NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "watch": "NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
@@ -19,26 +19,26 @@
     "author": "Marco Mark (marco.mark@dewsign.co.uk)",
     "license": "MIT",
     "devDependencies": {
-        "babel-eslint": "^8.0.2",
+        "babel-cli": "^6.26.0",
+        "babel-eslint": "^8.2.1",
         "babel-preset-es2015-rollup": "^3.0.0",
-        "browser-sync": "^2.18.13",
-        "browser-sync-webpack-plugin": "^1.2.0",
-        "eslint": "^4.12.1",
+        "eslint": "^4.16.0",
         "eslint-config-airbnb-base": "^12.1.0",
         "eslint-plugin-import": "^2.8.0",
-        "eslint-plugin-vue": "^2.1.0",
+        "eslint-plugin-vue": "^4.2.0",
         "husky": "^0.14.3",
-        "jsonlint": "^1.6.0",
-        "laravel-mix": "^1.7.2",
-        "lint-staged": "^6.0.0",
-        "markdownlint-cli": "^0.5.0",
-        "rollup-plugin-babel": "^3.0.2",
+        "jsonlint": "^1.6.2",
+        "lint-staged": "^6.1.0",
+        "markdownlint-cli": "^0.6.0",
+        "rollup-plugin-babel": "^3.0.3",
         "rollup-plugin-vue": "^3.0.0"
     },
     "dependencies": {
-        "collect.js": "^4.0.0",
+        "babel-core": "^6.26.0",
+        "collect.js": "^4.0.7",
         "maxfactor-vue-datastore": "0.0.3",
-        "vue": "^2.5.11",
-        "vue-localstorage": "^0.5.0"
+        "maxfactor-vue-support": "0.0.1",
+        "vue": "^2.5.13",
+        "vue-localstorage": "^0.6.1"
     }
 }
