@@ -29,7 +29,7 @@
         "husky": "^0.14.3",
         "jsonlint": "^1.6.2",
         "lint-staged": "^6.1.0",
-        "markdownlint-cli": "^0.6.0",
+        "markdownlint-cli": "^0.7.1",
         "rollup-plugin-babel": "^3.0.3",
         "rollup-plugin-vue": "^3.0.0"
     },
