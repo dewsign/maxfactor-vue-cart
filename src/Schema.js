@@ -6,6 +6,7 @@ export const ShippingData = {
     address_2: '',
     address_3: '',
     address_city: '',
+    address_county: '',
     address_postcode: '',
     address_country: '',
 }
@@ -19,6 +20,7 @@ export const BillingData = {
     address_2: '',
     address_3: '',
     address_city: '',
+    address_county: '',
     address_postcode: '',
     address_country: '',
 }
@@ -34,6 +36,7 @@ export const UserData = {
     address_2: '',
     address_3: '',
     address_city: '',
+    address_county: '',
     address_postcode: '',
     address_country: '',
     vat_number: '',
