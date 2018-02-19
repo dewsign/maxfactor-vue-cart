@@ -63,7 +63,9 @@ export const ShippingMethodData = {
 }
 
 export const PaymentData = {
+    provider: {},
     token: {},
+    payerid: {},
     result: {},
 }
 

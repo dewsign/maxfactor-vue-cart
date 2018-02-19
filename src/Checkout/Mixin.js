@@ -334,7 +334,7 @@ export default {
          * section for the 'payment' watch which acts as a callback when stripe
          * has returned a token or error.
          */
-        processCheckout(event) {
+        processStripeCheckout(event) {
             this.action = event.target.getAttribute('data-url')
             this.currentCheckout.payment.error = {}
             this.waitingForResult = true
@@ -342,10 +342,20 @@ export default {
             this.emit('createToken', this.stripeData)
         },
 
+        processCheckout(event) {
+            this.action = event.target.getAttribute('data-url')
+            this.loading = true
+            this.submitCheckoutToServer()
+        },
+
         /**
          * Load and activate custom checkout if accessed and available
          */
         loadCustomCheckout(checkoutId) {
+            if (Tell.serverVariable(`paypal.${checkoutId}`)) {
+                this.currentCheckout.payment = Tell.serverVariable(`paypal.${checkoutId}`)
+            }
+
             if (this.checkoutCollection(checkoutId).count()) {
                 if (window.location.href.indexOf(checkoutId) > -1) {
                     this.setActiveCheckout(checkoutId)
@@ -457,6 +467,14 @@ export default {
 
             const stageMethod = `setCheckoutStage${Make.ucFirst(stage)}`
             if (typeof this[stageMethod] === 'function') this[stageMethod]()
+        },
+
+        /**
+         * Clear up after a paypal checkout has been completed. Called when the page
+         * first loads.
+         */
+        setCheckoutStagePaypalcomplete() {
+            this.setCheckoutStageComplete()
         },
 
         /**
