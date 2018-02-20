@@ -330,22 +330,25 @@ export default {
         },
 
         /**
-         * Client-side process the checkout and get a stripe token. See the watch
-         * section for the 'payment' watch which acts as a callback when stripe
-         * has returned a token or error.
+         * Process checkout ready to submit to server
+         *
          */
-        processStripeCheckout(event) {
-            this.action = event.target.getAttribute('data-url')
-            this.currentCheckout.payment.error = {}
-            this.waitingForResult = true
-            this.loading = true
-            this.emit('createToken', this.stripeData)
-        },
-
         processCheckout(event) {
             this.action = event.target.getAttribute('data-url')
             this.loading = true
-            this.submitCheckoutToServer()
+
+            if (this.currentCheckout.payment.provider === 'free' || this.currentCheckout.payment.provider === 'paypal') {
+                this.submitCheckoutToServer()
+            } else {
+                /**
+                 * Client-side process the checkout and get a stripe token. See the watch
+                 * section for the 'payment' watch which acts as a callback when stripe
+                 * has returned a token or error.
+                 */
+                this.currentCheckout.payment.error = {}
+                this.waitingForResult = true
+                this.emit('createToken', this.stripeData)
+            }
         },
 
         /**
