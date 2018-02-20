@@ -8,6 +8,7 @@ class Make {
     }
 
     static money(amount) {
+        if (amount <= 0) return parseFloat(amount).toFixed(2)
         return parseFloat(amount)
     }
 }

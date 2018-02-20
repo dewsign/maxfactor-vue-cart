@@ -330,26 +330,76 @@ export default {
         },
 
         /**
-         * Client-side process the checkout and get a stripe token. See the watch
-         * section for the 'payment' watch which acts as a callback when stripe
-         * has returned a token or error.
+         * Process checkout ready to submit to server
+         *
          */
         processCheckout(event) {
             this.action = event.target.getAttribute('data-url')
-            this.currentCheckout.payment.error = {}
-            this.waitingForResult = true
             this.loading = true
-            this.emit('createToken', this.stripeData)
+
+            if (this.currentCheckout.payment.provider === 'free' || this.currentCheckout.payment.provider === 'paypal') {
+                this.submitCheckoutToServer()
+            } else {
+                /**
+                 * Client-side process the checkout and get a stripe token. See the watch
+                 * section for the 'payment' watch which acts as a callback when stripe
+                 * has returned a token or error.
+                 */
+                this.currentCheckout.payment.error = {}
+                this.waitingForResult = true
+                this.emit('createToken', this.stripeData)
+            }
+        },
+
+        /**
+         * Load and user details from server variables
+         *
+         * @param {string} checkoutId
+         */
+        updateUserDetails(checkoutId) {
+            if (Tell.serverVariable(`checkout.user.${checkoutId}`)) {
+                this.currentCheckout.user = Tell.serverVariable(`checkout.user.${checkoutId}`)
+            }
+        },
+
+        /**
+         * Load and user details from server variables
+         *
+         * @param {string} checkoutId
+         */
+        updateBillingDetails(checkoutId) {
+            if (Tell.serverVariable(`checkout.billing.${checkoutId}`)) {
+                this.currentCheckout.billing = Tell.serverVariable(`checkout.billing.${checkoutId}`)
+            }
+        },
+
+        /**
+         * Load and user details from server variables
+         *
+         * @param {string} checkoutId
+         */
+        updateShippingDetails(checkoutId) {
+            if (Tell.serverVariable(`checkout.shipping.${checkoutId}`)) {
+                this.currentCheckout.shipping = Tell.serverVariable(`checkout.shipping.${checkoutId}`)
+            }
         },
 
         /**
          * Load and activate custom checkout if accessed and available
          */
         loadCustomCheckout(checkoutId) {
+            if (Tell.serverVariable(`paypal.${checkoutId}`)) {
+                this.currentCheckout.payment = Tell.serverVariable(`paypal.${checkoutId}`)
+            }
+
             if (this.checkoutCollection(checkoutId).count()) {
                 if (window.location.href.indexOf(checkoutId) > -1) {
                     this.setActiveCheckout(checkoutId)
                 }
+
+                this.updateUserDetails(checkoutId)
+                this.updateBillingDetails(checkoutId)
+                this.updateShippingDetails(checkoutId)
 
                 return
             }
@@ -457,6 +507,14 @@ export default {
 
             const stageMethod = `setCheckoutStage${Make.ucFirst(stage)}`
             if (typeof this[stageMethod] === 'function') this[stageMethod]()
+        },
+
+        /**
+         * Clear up after a paypal checkout has been completed. Called when the page
+         * first loads.
+         */
+        setCheckoutStagePaypalcomplete() {
+            this.setCheckoutStageComplete()
         },
 
         /**
