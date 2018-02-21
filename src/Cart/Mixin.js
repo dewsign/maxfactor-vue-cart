@@ -51,8 +51,8 @@ export default {
 
         activeCartCollection: {
             get() {
-            return this.$root.cart
-        },
+                return this.$root.cart
+            },
             set(value) {
                 this.$root.cart = value
             },
@@ -63,13 +63,13 @@ export default {
          */
         cartCollection: {
             get() {
-            if (window.location.href.indexOf(this.currentCheckout.uid) > -1
-                && this.currentCheckout.uid) {
-                return this.currentCheckout
-            }
+                if (window.location.href.indexOf(this.currentCheckout.uid) > -1
+                    && this.currentCheckout.uid) {
+                    return this.currentCheckout
+                }
 
-            return this.activeCartCollection
-        },
+                return this.activeCartCollection
+            },
         },
 
         shippingCollection() {
@@ -162,13 +162,13 @@ export default {
          * @param {Object} item
          * @param {number} amount
          */
-        decreaseQuantity(item, amount = 1) {
+        decreaseQuantity(item, amount = 1, forceQuantityMin = null) {
             const itemInCart = this.isItemInCart(item)
             if (!itemInCart) return
 
             itemInCart.quantity -= amount
 
-            if (itemInCart.quantity.valueOf() < itemInCart.quantityMin) {
+            if (itemInCart.quantity.valueOf() < forceQuantityMin || itemInCart.quantityMin) {
                 this.removeItemFromCart(item)
             }
         },
