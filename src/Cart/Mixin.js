@@ -46,7 +46,7 @@ export default {
 
         cartTaxTotal() {
             return Make.money(this.cartSubTotal -
-                (this.cartNetTotal - this.cartDiscountTotal))
+                (this.cartNetTotal - this.cartDiscountTotal) - this.cartShippingTotal(false))
         },
 
         taxShouldApply() {
