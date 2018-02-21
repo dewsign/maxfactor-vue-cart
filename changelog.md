@@ -23,7 +23,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Installed missing packes
 - Add repository link to package
 - Fix issues with removing items not working
-- Fix VAT calculations in cart and checkout
+- Fix Tax calculations in cart and checkout
+- Fix Tax calculations when postage is chargable
 
 ## [0.3.0] - 2018-02-20
 
