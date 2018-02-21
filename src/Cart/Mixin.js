@@ -49,6 +49,24 @@ export default {
                 (this.cartNetTotal - this.cartDiscountTotal))
         },
 
+        taxShouldApply() {
+            return this.taxCanApply && this.activeCartCollection.taxInclusive
+        },
+
+        /**
+         * Determine if tax can be charged in the shopper's location. Default to true when no
+         * location services are included
+         */
+        taxCanApply() {
+            if (this.isTaxableLocation === undefined) return true
+
+            return this.isTaxableLocation
+        },
+
+        taxRate() {
+            return this.activeCartCollection.taxRate
+        },
+
         activeCartCollection: {
             get() {
                 return this.$root.cart
@@ -134,11 +152,11 @@ export default {
         cartShippingTotal(includeTax = false) {
             if (!includeTax) return this.shippingMethodCollection.price || 0.00
 
-            return this.taxTotal(
+            return Make.money(this.taxTotal(
                 this.shippingMethodCollection.price,
                 this.shippingMethodCollection.taxRate,
                 true,
-            ) || 0.00
+            ) || 0.00)
         },
 
         /**
@@ -217,17 +235,17 @@ export default {
         },
 
         taxTotal(amount, rate = null, inclusive = null) {
-            const taxRate = rate || this.taxRate
+            const taxRate = (rate !== null) ? rate : this.taxRate
 
             if (window.location.href.includes('/checkout/') && this.taxChargable) {
-                return parseFloat(amount) + (parseFloat(amount) * taxRate)
+                return Make.money(parseFloat(amount) + (parseFloat(amount) * taxRate))
             }
 
             if (this.taxCanApply && (inclusive || this.taxShouldApply) && !window.location.href.includes('/checkout/')) {
-                return parseFloat(amount) + (parseFloat(amount) * taxRate)
+                return Make.money(parseFloat(amount) + (parseFloat(amount) * taxRate))
             }
 
-            return amount
+            return Make.money(amount)
         },
     },
 }
