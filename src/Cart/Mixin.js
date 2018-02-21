@@ -49,20 +49,27 @@ export default {
                 (this.cartNetTotal - this.cartDiscountTotal))
         },
 
-        activeCartCollection() {
+        activeCartCollection: {
+            get() {
             return this.$root.cart
+        },
+            set(value) {
+                this.$root.cart = value
+            },
         },
 
         /**
          * Helper method to return the full cart object as a Collection
          */
-        cartCollection() {
+        cartCollection: {
+            get() {
             if (window.location.href.indexOf(this.currentCheckout.uid) > -1
                 && this.currentCheckout.uid) {
                 return this.currentCheckout
             }
 
             return this.activeCartCollection
+        },
         },
 
         shippingCollection() {
@@ -119,7 +126,7 @@ export default {
 
             this.emit('removeditemfromcart', item)
 
-            this.cart.items = this.itemsCollection.filter(cartItem =>
+            this.activeCartCollection.items = this.itemsCollection.filter(cartItem =>
                 JSON.stringify(cartItem) !== JSON.stringify(findItem)).all()
         },
 
