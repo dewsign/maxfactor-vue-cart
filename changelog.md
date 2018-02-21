@@ -12,6 +12,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Installed missing packes
 - Add repository link to package
 
+## [0.4.0] - 2018-02-21
+
+### Added
+
+- Allow minimum quantity to be overloaded to avoid negative quantity line items
+
+### Fixed
+
+- Installed missing packes
+- Add repository link to package
+- Fix issues with removing items not working
+
 ## [0.3.0] - 2018-02-20
 
 ### Added
