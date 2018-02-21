@@ -123,6 +123,7 @@ export default {
          */
         deleteItemInCart(item) {
             const findItem = this.isItemInCart(item)
+            if (!findItem) return
 
             this.emit('removeditemfromcart', item)
 
