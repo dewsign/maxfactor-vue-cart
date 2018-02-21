@@ -1,6 +1,6 @@
 # Maxfactor Vue Cart
 
-Owner: **Dewsign**
+[![npm](https://img.shields.io/npm/v/maxfactor-vue-cart.svg?style=for-the-badge)](https://www.npmjs.com/package/maxfactor-vue-cart)
 
 Authors:
 
