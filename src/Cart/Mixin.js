@@ -21,11 +21,15 @@ export default {
         cartDiscountPercentage() {
             if (!this.cartCollection.discount.percentage) return 0.00
 
-            if (this.cartCollection.discount.percentage === '100.00') {
-                this.currentCheckout.payment = { provider: 'free' }
-            } else {
-                this.currentCheckout.payment = { provider: '' }
-            }
+            let provider
+
+            ({ provider } = this.currentCheckout.payment)
+
+            if (provider === 'free') provider = ''
+
+            if (this.cartCollection.discount.percentage === '100.00') provider = 'free'
+
+            this.currentCheckout.payment.provider = provider
 
             return parseFloat(this.cartCollection.discount.percentage)
         },
