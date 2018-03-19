@@ -352,7 +352,18 @@ export default {
         },
 
         /**
-         * Load and user details from server variables
+         * Load items from server variables
+         *
+         * @param {string} checkoutId
+         */
+        updateItems(checkoutId) {
+            if (Tell.serverVariable(`checkout.${checkoutId}`)) {
+                this.currentCheckout.items = Tell.serverVariable(`checkout.${checkoutId}`)
+            }
+        },
+
+        /**
+         * Load user details from server variables
          *
          * @param {string} checkoutId
          */
@@ -397,6 +408,7 @@ export default {
                     this.setActiveCheckout(checkoutId)
                 }
 
+                this.updateItems(checkoutId)
                 this.updateUserDetails(checkoutId)
                 this.updateBillingDetails(checkoutId)
                 this.updateShippingDetails(checkoutId)
