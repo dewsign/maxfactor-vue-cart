@@ -413,6 +413,8 @@ export default {
                 this.updateBillingDetails(checkoutId)
                 this.updateShippingDetails(checkoutId)
 
+                this.activeCartCollection = this.currentCheckout
+
                 return
             }
 
@@ -424,6 +426,8 @@ export default {
             newCart.shipping = Tell.serverVariable(`checkout.shipping.${checkoutId}`)
             newCart.billing = Tell.serverVariable(`checkout.billing.${checkoutId}`)
             newCart.user = Tell.serverVariable(`checkout.user.${checkoutId}`)
+
+            this.activeCartCollection = newCart
 
             this.createCheckout(checkoutId, newCart)
 
