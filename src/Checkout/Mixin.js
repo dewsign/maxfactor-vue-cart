@@ -413,7 +413,7 @@ export default {
                 this.updateBillingDetails(checkoutId)
                 this.updateShippingDetails(checkoutId)
 
-                this.activeCartCollection = this.currentCheckout
+                this.activeCartCollection = Make.cloneOf(this.currentCheckout)
 
                 return
             }
