@@ -7,10 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-### Added
+### Fixed
 
-- Installed missing packes
-- Add repository link to package
+- Payment provider being reset incorrectly if discount of less than 100% used
 
 ## [0.4.0] - 2018-02-21
 
@@ -20,7 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
-- Installed missing packes
+- Installed missing packages
 - Add repository link to package
 - Fix issues with removing items not working
 - Fix Tax calculations in cart and checkout
