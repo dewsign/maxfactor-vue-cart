@@ -357,6 +357,14 @@ export default {
          * @param {string} checkoutId
          */
         updateItems(checkoutId) {
+            /**
+             *  Don't update front end cart items on first stage if user has cart with checkoutId
+             *  This allows users to edit items once checkout started
+             */
+            if (this.currentCheckout.stage && window.location.href.indexOf(checkoutId) > -1) {
+                return
+            }
+
             if (Tell.serverVariable(`checkout.${checkoutId}`)) {
                 this.currentCheckout.items = Tell.serverVariable(`checkout.${checkoutId}`)
             }
