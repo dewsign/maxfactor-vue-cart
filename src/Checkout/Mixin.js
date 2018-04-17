@@ -352,7 +352,26 @@ export default {
         },
 
         /**
-         * Load and user details from server variables
+         * Load items from server variables
+         *
+         * @param {string} checkoutId
+         */
+        updateItems(checkoutId) {
+            /**
+             *  Don't update front end cart items on first stage if user has cart with checkoutId
+             *  This allows users to edit items once checkout started
+             */
+            if (this.currentCheckout.stage && window.location.href.indexOf(checkoutId) > -1) {
+                return
+            }
+
+            if (Tell.serverVariable(`checkout.${checkoutId}`)) {
+                this.currentCheckout.items = Tell.serverVariable(`checkout.${checkoutId}`)
+            }
+        },
+
+        /**
+         * Load user details from server variables
          *
          * @param {string} checkoutId
          */
@@ -397,9 +416,12 @@ export default {
                     this.setActiveCheckout(checkoutId)
                 }
 
+                this.updateItems(checkoutId)
                 this.updateUserDetails(checkoutId)
                 this.updateBillingDetails(checkoutId)
                 this.updateShippingDetails(checkoutId)
+
+                this.activeCartCollection = Make.cloneOf(this.currentCheckout)
 
                 return
             }
@@ -412,6 +434,8 @@ export default {
             newCart.shipping = Tell.serverVariable(`checkout.shipping.${checkoutId}`)
             newCart.billing = Tell.serverVariable(`checkout.billing.${checkoutId}`)
             newCart.user = Tell.serverVariable(`checkout.user.${checkoutId}`)
+
+            this.activeCartCollection = newCart
 
             this.createCheckout(checkoutId, newCart)
 
