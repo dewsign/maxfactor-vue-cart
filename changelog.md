@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.0] - 2018-04-17
+
 ### Added
 
-- Installed missing packes
-- Add repository link to package
+- Update front end checkout items with items returned from server
 
 ## [0.4.0] - 2018-02-21
 
@@ -20,11 +21,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
-- Installed missing packes
+- Installed missing packages
 - Add repository link to package
 - Fix issues with removing items not working
 - Fix Tax calculations in cart and checkout
-- Fix Tax calculations when postage is chargable
+- Fix Tax calculations when postage is chargeable
 
 ## [0.3.0] - 2018-02-20
 
