@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.3] - 2018-04-18
+
+### Fixed
+
+- When checking for a valid checkout ensure stage is less than or equal to the complete stage
+
 ## [0.5.1] - 2018-04-17
 
 ### Added

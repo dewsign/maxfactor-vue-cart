@@ -618,7 +618,7 @@ export default {
             if (this.currentCheckout.stage === checkoutView) return false
 
             if (this.currentCheckout.stage >= checkoutView &&
-                this.currentCheckout.stage < Stage.COMPLETE) return false
+                this.currentCheckout.stage <= Stage.COMPLETE) return false
 
             window.location.href = '/cart'
             return true
