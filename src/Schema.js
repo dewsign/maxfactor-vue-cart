@@ -9,6 +9,7 @@ export const ShippingData = {
     address_county: '',
     address_postcode: '',
     address_country: '',
+    address_notes: '',
 }
 
 export const BillingData = {
@@ -23,6 +24,7 @@ export const BillingData = {
     address_county: '',
     address_postcode: '',
     address_country: '',
+    address_notes: '',
 }
 
 export const UserData = {
