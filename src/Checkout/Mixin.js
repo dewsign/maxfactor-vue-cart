@@ -219,6 +219,7 @@ export default {
                 'address_city',
                 'address_postcode',
                 'address_country',
+                'address_notes',
             ]).map(item => this.syncShippingItemToBilling(item))
         },
 
@@ -234,6 +235,7 @@ export default {
                 'address_city',
                 'address_postcode',
                 'address_country',
+                'address_notes',
             ]).map(item => this.clearBillingItem(item))
         },
 
