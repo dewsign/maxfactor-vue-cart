@@ -590,6 +590,12 @@ export default {
         deleteCart() {
             this.activeCartCollection.items = []
             this.activeCartCollection.uid = Tell.randomUid()
+            this.activeCartCollection.discount = {
+                code: '',
+                description: '',
+                expiry: '',
+                percentage: 0.00,
+            }
         },
 
         progressCheckoutStage() {
