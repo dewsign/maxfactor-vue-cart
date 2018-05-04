@@ -519,6 +519,12 @@ export default {
             this.progressCheckoutStage()
 
             this.action = ''
+
+            /**
+             * We set the loading state to true before making a client side redirect to avoid the
+             * user clicking the submit button multiple times
+             */
+            this.formIsLoading = true
             window.location.href = checkoutUrl
         },
 
@@ -630,7 +636,13 @@ export default {
             if (this.currentCheckout.stage >= checkoutView &&
                 this.currentCheckout.stage <= Stage.COMPLETE) return false
 
+            /**
+             * We set the loading state to true before making a client side redirect here to stop
+             * the user from performing further actions.
+             */
+            this.formIsLoading = true
             window.location.href = '/cart'
+
             return true
         },
 
