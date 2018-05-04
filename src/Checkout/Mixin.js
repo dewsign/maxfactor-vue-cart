@@ -156,17 +156,17 @@ export default {
         payment: {
             handler() {
                 if (!this.waitingForResult) {
-                    this.loading = false
+                    this.formIsLoading = false
                     return
                 }
 
                 if (this.hasPaymentErrors) {
-                    this.loading = false
+                    this.formIsLoading = false
                     return
                 }
 
                 if (!this.hasPaymentToken) {
-                    this.loading = false
+                    this.formIsLoading = false
                     return
                 }
 
@@ -308,7 +308,7 @@ export default {
          * @param {string} id
          */
         prepareCheckout(event, id = null) {
-            this.loading = true
+            this.formIsLoading = true
             this.action = event.target.dataset.url
 
             const checkoutId = id || Tell.serverVariable('uid') || this.activeCartCollection.uid
@@ -339,7 +339,7 @@ export default {
          */
         processCheckout(event) {
             this.action = event.target.getAttribute('data-url')
-            this.loading = true
+            this.formIsLoading = true
 
             if (this.currentCheckout.payment.provider === 'free' || this.currentCheckout.payment.provider === 'paypal') {
                 this.submitCheckoutToServer()
@@ -455,7 +455,7 @@ export default {
          */
         submitCheckoutToServer() {
             if (!this.action) {
-                this.loading = false
+                this.formIsLoading = false
                 return
             }
 
@@ -471,7 +471,7 @@ export default {
                     this.errors = {
                         message: 'No response',
                     }
-                    this.loading = false
+                    this.formIsLoading = false
                     return
                 }
 
@@ -493,7 +493,7 @@ export default {
                     this.continueCheckout()
                 }
             }).catch((error) => {
-                this.loading = false
+                this.formIsLoading = false
                 this.errors = error.response.data
             })
         },
@@ -506,13 +506,13 @@ export default {
         continueCheckout(id = null) {
             const checkoutId = id || this.currentCheckout.uid
             if (!this.action) {
-                this.loading = false
+                this.formIsLoading = false
                 return
             }
 
             const checkoutUrl = this.action.replace('UUID', checkoutId)
             if (checkoutUrl === window.location.href) {
-                this.loading = false
+                this.formIsLoading = false
                 return
             }
 
@@ -637,12 +637,12 @@ export default {
         loadCountryDetails() {
             if (!this.shippingCountry) return
 
-            this.loading = true
+            this.formIsLoading = true
 
             this.postForm('/account/location', {
                 country: this.shippingCountry,
             }).then((response) => {
-                this.loading = false
+                this.formIsLoading = false
 
                 if (response.data.errors) {
                     this.errors = response.data.errors
@@ -660,7 +660,7 @@ export default {
                     }
                 }
             }).catch((error) => {
-                this.loading = false
+                this.formIsLoading = false
                 this.errors = error
             })
         },
