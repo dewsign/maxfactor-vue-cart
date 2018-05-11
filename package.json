@@ -43,6 +43,7 @@
     "dependencies": {
         "babel-core": "^6.26.0",
         "collect.js": "^4.0.7",
+        "lodash": "^4.17.10",
         "maxfactor-vue-datastore": "^1.0.0",
         "maxfactor-vue-support": "^1.0.0",
         "vue": "^2.5.13",
