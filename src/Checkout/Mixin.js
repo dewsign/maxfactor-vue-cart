@@ -598,6 +598,8 @@ export default {
         deleteCart() {
             this.activeCartCollection.items = []
             this.activeCartCollection.uid = Tell.randomUid()
+            this.activeCartCollection.stage = 0
+            this.activeCartCollection.shippingMethod = {}
             this.activeCartCollection.discount = {
                 code: '',
                 description: '',
