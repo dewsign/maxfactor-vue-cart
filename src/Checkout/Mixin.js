@@ -634,7 +634,7 @@ export default {
             if (this.currentCheckout.stage === checkoutView) return false
 
             if (this.currentCheckout.stage >= checkoutView &&
-                this.currentCheckout.stage <= Stage.COMPLETE) return false
+                this.currentCheckout.stage < Stage.COMPLETE) return false
 
             /**
              * We set the loading state to true before making a client side redirect here to stop
