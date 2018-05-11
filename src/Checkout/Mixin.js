@@ -694,7 +694,9 @@ export default {
         this.loadCustomCheckout(uid)
 
         const stage = Tell.serverVariable(`stage.${uid}`)
-        if (stage) this.setCheckoutStage(stage)
+        const serverStage = Tell.serverVariable(`serverStage.${uid}`)
+
+        if (stage) this.setCheckoutStage(stage, serverStage)
     },
 
 }
