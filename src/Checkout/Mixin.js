@@ -641,6 +641,15 @@ export default {
              * the user from performing further actions.
              */
             this.formIsLoading = true
+
+            /**
+             * The user will have been trying to do something funky to get here,
+             * such as navigating backwards after competing checkout
+             * We should give their cart a new uid to ensure they can't update a completed order
+             */
+            this.activeCartCollection.uid = Tell.randomUid()
+            this.activeCartCollection.stage = 0
+
             window.location.href = '/cart'
 
             return true
