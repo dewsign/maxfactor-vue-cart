@@ -1,3 +1,4 @@
+import { invert } from 'lodash'
 import { FormMixin } from 'maxfactor-vue-support'
 import collect from 'collect.js'
 import Make from '../Helpers/Make'
@@ -536,10 +537,19 @@ export default {
             this.showMobileCheckoutSummary = !this.showMobileCheckoutSummary
         },
 
-        setCheckoutStage(stage = null) {
+        setCheckoutStage(stage = null, serverStage = null) {
             if (!stage) return
+            let clientStage = stage
+            // Get integer value for client stage
+            const clientStageInt = Stage[clientStage.toUpperCase()]
 
-            const stageMethod = `setCheckoutStage${Make.ucFirst(stage)}`
+            // Client stage should not be ahead of server stage, use server stage
+            if (serverStage && clientStageInt > serverStage) {
+                clientStage = invert(Stage)[serverStage]
+            }
+
+            const stageMethod = `setCheckoutStage${Make.ucFirst(clientStage)}`
+
             if (typeof this[stageMethod] === 'function') this[stageMethod]()
         },
 
