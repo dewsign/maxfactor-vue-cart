@@ -1,4 +1,3 @@
-import { invert } from 'lodash'
 import { FormMixin } from 'maxfactor-vue-support'
 import collect from 'collect.js'
 import Make from '../Helpers/Make'
@@ -426,7 +425,10 @@ export default {
                 this.updateBillingDetails(checkoutId)
                 this.updateShippingDetails(checkoutId)
 
-                this.activeCartCollection = Make.cloneOf(this.currentCheckout)
+                // Don't update active cart if order is complete
+                if (Tell.serverVariable(`serverStage.${checkoutId}`) < Stage.COMPLETE) {
+                    this.activeCartCollection = Make.cloneOf(this.currentCheckout)
+                }
 
                 return
             }
@@ -440,7 +442,10 @@ export default {
             newCart.billing = Tell.serverVariable(`checkout.billing.${checkoutId}`)
             newCart.user = Tell.serverVariable(`checkout.user.${checkoutId}`)
 
-            this.activeCartCollection = newCart
+            // Don't update active cart if order is complete
+            if (Tell.serverVariable(`serverStage.${checkoutId}`) < Stage.COMPLETE) {
+                this.activeCartCollection = newCart
+            }
 
             this.createCheckout(checkoutId, newCart)
 
@@ -537,18 +542,12 @@ export default {
             this.showMobileCheckoutSummary = !this.showMobileCheckoutSummary
         },
 
-        setCheckoutStage(stage = null, serverStage = null) {
+        setCheckoutStage(stage = null, uid) {
             if (!stage) return
-            let clientStage = stage
-            // Get integer value for client stage
-            const clientStageInt = Stage[clientStage.toUpperCase()]
 
-            // Client stage should not be ahead of server stage, use server stage
-            if (serverStage && clientStageInt > serverStage) {
-                clientStage = invert(Stage)[serverStage]
-            }
+            if (this.handleInvalidCheckout(Stage[stage.toUpperCase()], uid)) return
 
-            const stageMethod = `setCheckoutStage${Make.ucFirst(clientStage)}`
+            const stageMethod = `setCheckoutStage${Make.ucFirst(stage)}`
 
             if (typeof this[stageMethod] === 'function') this[stageMethod]()
         },
@@ -566,8 +565,6 @@ export default {
          * first loads.
          */
         setCheckoutStageComplete() {
-            if (this.handleInvalidCheckout(Stage.COMPLETE)) return
-
             this.currentCheckout.stage = Stage.COMPLETE
 
             if (this.activeCartCollection.uid === this.currentCheckout.uid) this.deleteCart()
@@ -578,8 +575,6 @@ export default {
          * page first loads.
          */
         setCheckoutStagePayment() {
-            if (this.handleInvalidCheckout(Stage.PAYMENT)) return
-
             this.prepareNextStage(Stage.PAYMENT, Stage.COMPLETE)
         },
 
@@ -588,8 +583,6 @@ export default {
          * page first loads.
          */
         setCheckoutStageShipping() {
-            if (this.handleInvalidCheckout(Stage.SHIPPING)) return
-
             this.prepareNextStage(Stage.SHIPPING, Stage.PAYMENT)
         },
 
@@ -597,8 +590,6 @@ export default {
          * Prepare the first checkout stage. Called when the page first loads.
          */
         setCheckoutStageDefault() {
-            if (this.handleInvalidCheckout(Stage.DEFAULT)) return
-
             this.prepareNextStage(Stage.DEFAULT, Stage.SHIPPING)
         },
 
@@ -640,13 +631,17 @@ export default {
          * Check that the current checkout step is allowed to be accessed.
          * Returns false if the stage is valid.
          */
-        handleInvalidCheckout(checkoutView = Stage.DEFAULT) {
-            if (!this.currentCheckout.stage) return false
+        handleInvalidCheckout(checkoutView = Stage.DEFAULT, uid) {
+            let serverStage = Tell.serverVariable(`serverStage.${uid}`)
 
+            if (!serverStage) serverStage = 0
             if (this.currentCheckout.stage === checkoutView) return false
 
             if (this.currentCheckout.stage >= checkoutView &&
                 this.currentCheckout.stage < Stage.COMPLETE) return false
+
+            // Validate server stage vs Client stage
+            if (this.currentCheckout.stage <= serverStage) return false
 
             /**
              * We set the loading state to true before making a client side redirect here to stop
@@ -661,7 +656,6 @@ export default {
              */
             this.activeCartCollection.uid = Tell.randomUid()
             this.activeCartCollection.stage = 0
-
             window.location.href = '/cart'
 
             return true
@@ -715,9 +709,7 @@ export default {
         this.loadCustomCheckout(uid)
 
         const stage = Tell.serverVariable(`stage.${uid}`)
-        const serverStage = Tell.serverVariable(`serverStage.${uid}`)
 
-        if (stage) this.setCheckoutStage(stage, serverStage)
+        if (stage) this.setCheckoutStage(stage, uid)
     },
-
 }
