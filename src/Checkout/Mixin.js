@@ -634,14 +634,16 @@ export default {
         handleInvalidCheckout(checkoutView = Stage.DEFAULT, uid) {
             let serverStage = Tell.serverVariable(`serverStage.${uid}`)
 
-            if (!serverStage) serverStage = 0
+            if (!serverStage) serverStage = 1
+
             if (this.currentCheckout.stage === checkoutView) return false
 
             if (this.currentCheckout.stage >= checkoutView &&
                 this.currentCheckout.stage < Stage.COMPLETE) return false
 
             // Validate server stage vs Client stage
-            if (this.currentCheckout.stage <= serverStage) return false
+            if (checkoutView <= serverStage &&
+                serverStage < Stage.COMPLETE) return false
 
             /**
              * We set the loading state to true before making a client side redirect here to stop
