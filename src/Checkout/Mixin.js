@@ -436,7 +436,7 @@ export default {
             const newCart = Make.cloneOf(this.activeCartCollection)
 
             newCart.uid = checkoutId
-            newCart.useShipping = false
+            newCart.useShipping = true
             newCart.items = Tell.serverVariable(`checkout.${checkoutId}`)
             newCart.shipping = Tell.serverVariable(`checkout.shipping.${checkoutId}`)
             newCart.billing = Tell.serverVariable(`checkout.billing.${checkoutId}`)
