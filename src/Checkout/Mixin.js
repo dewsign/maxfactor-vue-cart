@@ -425,7 +425,10 @@ export default {
                 this.updateBillingDetails(checkoutId)
                 this.updateShippingDetails(checkoutId)
 
-                // Don't update active cart if order is complete
+                /**
+                 * Don't update active cart if order is complete
+                 * Otherwise we would trash users current cart
+                 */
                 if (Tell.serverVariable(`serverStage.${checkoutId}`) < Stage.COMPLETE) {
                     this.activeCartCollection = Make.cloneOf(this.currentCheckout)
                 }
@@ -442,7 +445,10 @@ export default {
             newCart.billing = Tell.serverVariable(`checkout.billing.${checkoutId}`)
             newCart.user = Tell.serverVariable(`checkout.user.${checkoutId}`)
 
-            // Don't update active cart if order is complete
+            /**
+             * Don't update active cart if order is complete
+             * Otherwise we would trash users current cart
+            */
             if (Tell.serverVariable(`serverStage.${checkoutId}`) < Stage.COMPLETE) {
                 this.activeCartCollection = newCart
             }
@@ -654,7 +660,7 @@ export default {
                 this.currentCheckout.stage < Stage.COMPLETE) return false
 
             // Validate server stage vs Client stage
-            if (checkoutView <= serverStage &&
+            if (serverStage >= checkoutView &&
                 serverStage < Stage.COMPLETE) return false
 
             /**
