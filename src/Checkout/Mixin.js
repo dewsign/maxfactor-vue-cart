@@ -439,7 +439,7 @@ export default {
             const newCart = Make.cloneOf(this.activeCartCollection)
 
             newCart.uid = checkoutId
-            newCart.useShipping = true
+            newCart.useShipping = false
             newCart.items = Tell.serverVariable(`checkout.${checkoutId}`)
             newCart.shipping = Tell.serverVariable(`checkout.shipping.${checkoutId}`)
             newCart.billing = Tell.serverVariable(`checkout.billing.${checkoutId}`)
@@ -652,7 +652,7 @@ export default {
         handleInvalidCheckout(checkoutView = Stage.DEFAULT, uid) {
             let serverStage = Tell.serverVariable(`serverStage.${uid}`)
 
-            if (!serverStage) serverStage = 1
+            if (!serverStage) serverStage = Stage.DEFAULT
 
             if (this.currentCheckout.stage === checkoutView) return false
 
@@ -674,8 +674,11 @@ export default {
              * such as navigating backwards after competing checkout
              * We should give their cart a new uid to ensure they can't update a completed order
              */
-            this.activeCartCollection.uid = Tell.randomUid()
-            this.activeCartCollection.stage = 0
+            if (this.activeCartCollection.uid === this.currentCheckout.uid) {
+                this.activeCartCollection.uid = Tell.randomUid()
+                this.activeCartCollection.stage = 0
+            }
+
             window.location.href = '/cart'
 
             return true
