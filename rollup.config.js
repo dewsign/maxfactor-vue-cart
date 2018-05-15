@@ -12,7 +12,6 @@ export default {
         'maxfactor-vue-support',
         'collect.js',
         'vue',
-        'lodash',
     ],
     plugins: [
         RollupPluginVue(),
