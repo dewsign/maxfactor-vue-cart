@@ -600,7 +600,19 @@ export default {
             this.activeCartCollection.items = []
             this.activeCartCollection.uid = Tell.randomUid()
             this.activeCartCollection.stage = 0
-            this.activeCartCollection.shippingMethod = {}
+            this.activeCartCollection.shippingMethod = {
+                id: 0,
+                name: '',
+                price: 0.00,
+                taxRate: 0.00,
+                poa: false,
+            }
+            this.activeCartCollection.payment = {
+                provider: {},
+                token: {},
+                payerid: {},
+                result: {},
+            }
             this.activeCartCollection.discount = {
                 code: '',
                 description: '',
