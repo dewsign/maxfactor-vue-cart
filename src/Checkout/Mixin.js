@@ -654,14 +654,32 @@ export default {
 
             if (!serverStage) serverStage = Stage.DEFAULT
 
+            /**
+             * Current checkout stage is the same and the stage they are trying to view
+             * Can return safely
+             */
             if (this.currentCheckout.stage === checkoutView) return false
 
+            /**
+             * Current checkout stage is greater than or equal to the stage they are trying to view
+             * AND Current checkout stage less than the complete stage
+             */
             if (this.currentCheckout.stage >= checkoutView &&
                 this.currentCheckout.stage < Stage.COMPLETE) return false
 
-            // Validate server stage vs Client stage
+            /**
+             * Current server stage is greater than or equal to the stage they are trying to view
+             * AND Current server stage less than the complete stage
+             * This stops a customer placing an order twice
+             */
             if (serverStage >= checkoutView &&
                 serverStage < Stage.COMPLETE) return false
+
+            /**
+             * Allow the customer to load the complete page if server stage is complete
+             */
+            if (checkoutView === Stage.COMPLETE &&
+                serverStage === Stage.COMPLETE) return false
 
             /**
              * We set the loading state to true before making a client side redirect here to stop
