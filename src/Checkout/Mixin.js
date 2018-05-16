@@ -425,7 +425,13 @@ export default {
                 this.updateBillingDetails(checkoutId)
                 this.updateShippingDetails(checkoutId)
 
-                this.activeCartCollection = Make.cloneOf(this.currentCheckout)
+                /**
+                 * Don't update active cart if order is complete
+                 * Otherwise we would trash users current cart
+                 */
+                if (Tell.serverVariable(`serverStage.${checkoutId}`) < Stage.COMPLETE) {
+                    this.activeCartCollection = Make.cloneOf(this.currentCheckout)
+                }
 
                 return
             }
@@ -439,7 +445,13 @@ export default {
             newCart.billing = Tell.serverVariable(`checkout.billing.${checkoutId}`)
             newCart.user = Tell.serverVariable(`checkout.user.${checkoutId}`)
 
-            this.activeCartCollection = newCart
+            /**
+             * Don't update active cart if order is complete
+             * Otherwise we would trash users current cart
+            */
+            if (Tell.serverVariable(`serverStage.${checkoutId}`) < Stage.COMPLETE) {
+                this.activeCartCollection = newCart
+            }
 
             this.createCheckout(checkoutId, newCart)
 
@@ -536,10 +548,13 @@ export default {
             this.showMobileCheckoutSummary = !this.showMobileCheckoutSummary
         },
 
-        setCheckoutStage(stage = null) {
+        setCheckoutStage(stage = null, uid) {
             if (!stage) return
 
+            if (this.handleInvalidCheckout(Stage[stage.toUpperCase()], uid)) return
+
             const stageMethod = `setCheckoutStage${Make.ucFirst(stage)}`
+
             if (typeof this[stageMethod] === 'function') this[stageMethod]()
         },
 
@@ -556,8 +571,6 @@ export default {
          * first loads.
          */
         setCheckoutStageComplete() {
-            if (this.handleInvalidCheckout(Stage.COMPLETE)) return
-
             this.currentCheckout.stage = Stage.COMPLETE
 
             if (this.activeCartCollection.uid === this.currentCheckout.uid) this.deleteCart()
@@ -568,8 +581,6 @@ export default {
          * page first loads.
          */
         setCheckoutStagePayment() {
-            if (this.handleInvalidCheckout(Stage.PAYMENT)) return
-
             this.prepareNextStage(Stage.PAYMENT, Stage.COMPLETE)
         },
 
@@ -578,8 +589,6 @@ export default {
          * page first loads.
          */
         setCheckoutStageShipping() {
-            if (this.handleInvalidCheckout(Stage.SHIPPING)) return
-
             this.prepareNextStage(Stage.SHIPPING, Stage.PAYMENT)
         },
 
@@ -587,8 +596,6 @@ export default {
          * Prepare the first checkout stage. Called when the page first loads.
          */
         setCheckoutStageDefault() {
-            if (this.handleInvalidCheckout(Stage.DEFAULT)) return
-
             this.prepareNextStage(Stage.DEFAULT, Stage.SHIPPING)
         },
 
@@ -598,6 +605,20 @@ export default {
         deleteCart() {
             this.activeCartCollection.items = []
             this.activeCartCollection.uid = Tell.randomUid()
+            this.activeCartCollection.stage = 0
+            this.activeCartCollection.shippingMethod = {
+                id: 0,
+                name: '',
+                price: 0.00,
+                taxRate: 0.00,
+                poa: false,
+            }
+            this.activeCartCollection.payment = {
+                provider: {},
+                token: {},
+                payerid: {},
+                result: {},
+            }
             this.activeCartCollection.discount = {
                 code: '',
                 description: '',
@@ -628,19 +649,53 @@ export default {
          * Check that the current checkout step is allowed to be accessed.
          * Returns false if the stage is valid.
          */
-        handleInvalidCheckout(checkoutView = Stage.DEFAULT) {
-            if (!this.currentCheckout.stage) return false
+        handleInvalidCheckout(checkoutView = Stage.DEFAULT, uid) {
+            let serverStage = Number(Tell.serverVariable(`serverStage.${uid}`))
+            if (!serverStage) serverStage = Stage.DEFAULT
 
+            /**
+             * Current checkout stage is the same and the stage they are trying to view
+             * Can return safely
+             */
             if (this.currentCheckout.stage === checkoutView) return false
 
+            /**
+             * Current checkout stage is greater than or equal to the stage they are trying to view
+             * AND Current checkout stage less than the complete stage
+             */
             if (this.currentCheckout.stage >= checkoutView &&
-                this.currentCheckout.stage <= Stage.COMPLETE) return false
+                this.currentCheckout.stage < Stage.COMPLETE) return false
+
+            /**
+             * Current server stage is greater than or equal to the stage they are trying to view
+             * AND Current server stage less than the complete stage
+             * This stops a customer placing an order twice
+             */
+            if (serverStage >= checkoutView &&
+                serverStage < Stage.COMPLETE) return false
+
+            /**
+             * Allow the customer to load the complete page if server stage is complete
+             */
+            if (checkoutView === Stage.COMPLETE &&
+                serverStage === Stage.COMPLETE) return false
 
             /**
              * We set the loading state to true before making a client side redirect here to stop
              * the user from performing further actions.
              */
             this.formIsLoading = true
+
+            /**
+             * The user will have been trying to do something funky to get here,
+             * such as navigating backwards after competing checkout
+             * We should give their cart a new uid to ensure they can't update a completed order
+             */
+            if (this.activeCartCollection.uid === this.currentCheckout.uid) {
+                this.activeCartCollection.uid = Tell.randomUid()
+                this.activeCartCollection.stage = 0
+            }
+
             window.location.href = '/cart'
 
             return true
@@ -694,7 +749,7 @@ export default {
         this.loadCustomCheckout(uid)
 
         const stage = Tell.serverVariable(`stage.${uid}`)
-        if (stage) this.setCheckoutStage(stage)
-    },
 
+        if (stage) this.setCheckoutStage(stage, uid)
+    },
 }
