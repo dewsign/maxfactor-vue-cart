@@ -81,6 +81,7 @@ export const CheckoutStages = {
     SHIPPING: 2,
     PAYMENT: 3,
     COMPLETE: 4,
+    PAYPALCOMPLETE: 4,
 }
 
 export default {
