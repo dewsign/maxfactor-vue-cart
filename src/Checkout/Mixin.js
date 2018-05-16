@@ -650,8 +650,7 @@ export default {
          * Returns false if the stage is valid.
          */
         handleInvalidCheckout(checkoutView = Stage.DEFAULT, uid) {
-            let serverStage = Tell.serverVariable(`serverStage.${uid}`)
-
+            let serverStage = Number(Tell.serverVariable(`serverStage.${uid}`))
             if (!serverStage) serverStage = Stage.DEFAULT
 
             /**
