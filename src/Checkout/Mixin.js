@@ -502,14 +502,22 @@ export default {
                 /**
                  * Check for Stripe or PayPal success statuses
                  */
-                if (response.data.paymentResponse.status === 'succeeded' ||
-                    response.data.paymentResponse.PAYMENTINFO_0_PAYMENTSTATUS === 'Completed') {
+                if (this.hasSuccessfulPayment(response.data.paymentResponse)) {
                     this.currentCheckout.payment.result = response.data
                     this.continueCheckout()
                 }
             }).catch(() => {
                 this.formIsLoading = false
             })
+        },
+
+        /**
+         * Check for Stripe or PayPal success statuses
+         *
+         * @param { object } paymentResponse
+         */
+        hasSuccessfulPayment(paymentResponse) {
+            return paymentResponse.status === 'succeeded' || paymentResponse.PAYMENTINFO_0_PAYMENTSTATUS === 'Completed'
         },
 
         /**
