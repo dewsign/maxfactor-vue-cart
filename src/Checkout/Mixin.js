@@ -499,13 +499,16 @@ export default {
                     return
                 }
 
-                if (response.data.paymentResponse.status === 'succeeded') {
+                /**
+                 * Check for Stripe or PayPal success statuses
+                 */
+                if (response.data.paymentResponse.status === 'succeeded' ||
+                    response.data.paymentResponse.PAYMENTINFO_0_PAYMENTSTATUS === 'Completed') {
                     this.currentCheckout.payment.result = response.data
                     this.continueCheckout()
                 }
-            }).catch((error) => {
+            }).catch(() => {
                 this.formIsLoading = false
-                this.form.errors = error.response.data
             })
         },
 
