@@ -470,17 +470,16 @@ export default {
                 this.formIsLoading = false
                 return
             }
-
             const checkoutUrl = this.action.replace('UUID', this.currentCheckout.uid)
 
-            this.errors = {}
+            this.form.errors = {}
 
             this.postForm(checkoutUrl, {
                 stripe: this.payment,
                 checkout: this.currentCheckout,
             }).then((response) => {
                 if (!response) {
-                    this.errors = {
+                    this.form.errors = {
                         message: 'No response',
                     }
                     this.formIsLoading = false
@@ -496,7 +495,7 @@ export default {
                 }
 
                 if (response.data.paymentResponse.error) {
-                    this.errors = response.data.paymentResponse.error
+                    this.form.errors = response.data.paymentResponse.error
                     return
                 }
 
@@ -506,7 +505,7 @@ export default {
                 }
             }).catch((error) => {
                 this.formIsLoading = false
-                this.errors = error.response.data
+                this.form.errors = error.response.data
             })
         },
 
@@ -712,7 +711,7 @@ export default {
                 this.formIsLoading = false
 
                 if (response.data.errors) {
-                    this.errors = response.data.errors
+                    this.form.errors = response.data.errors
                 }
 
                 if (response.data.countryCode && this.currentCheckout.stage < Stage.SHIPPING) {
@@ -728,7 +727,7 @@ export default {
                 }
             }).catch((error) => {
                 this.formIsLoading = false
-                this.errors = error
+                this.form.errors = error
             })
         },
 
