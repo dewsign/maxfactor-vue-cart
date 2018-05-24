@@ -326,7 +326,7 @@ export default {
             this.setActiveCheckout(checkoutId)
 
             /**
-             * Sync the shipping address of the active checkout to the billing adress
+             * Sync the shipping address of the active checkout to the billing address
              */
             if (this.useShippingForBilling) this.syncShippingToBilling()
 
@@ -361,11 +361,15 @@ export default {
          * @param {string} checkoutId
          */
         updateItems(checkoutId) {
+            const stageBeingViewed = Stage[Tell.serverVariable(`stage.${checkoutId}`).toUpperCase()]
+
             /**
-             *  Don't update front end cart items on first stage if user has cart with checkoutId
+             *  Don't update front end cart items from
+             *  server on first stage if user has cart with checkoutId
              *  This allows users to edit items once checkout started
              */
-            if (this.currentCheckout.stage && window.location.href.indexOf(checkoutId) > -1) {
+            if (stageBeingViewed === Stage.DEFAULT
+                && window.location.href.indexOf(checkoutId) > -1) {
                 return
             }
 
