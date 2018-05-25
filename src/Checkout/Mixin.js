@@ -374,7 +374,7 @@ export default {
             }
 
             if (Tell.serverVariable(`checkout.${checkoutId}`)) {
-                this.currentCheckout.items = Tell.serverVariable(`checkout.${checkoutId}`)
+                this.currentCheckout.items = Object.values(Tell.serverVariable(`checkout.${checkoutId}`))
             }
         },
 
