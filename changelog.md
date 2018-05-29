@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.6.10] - 2018-05-29
+
+### Fixed
+
+- Only update cart items from server if not viewing first stage of checkout
+- Ensure only checkout items object values are added to cart
+
+- Check for PayPal successful payment response
+
 ## [0.6.9] - 2018-05-22
 
 ### Fixed
