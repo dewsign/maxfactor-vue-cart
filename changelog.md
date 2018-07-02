@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changes
 
 - Remove Mix as no longer used as build tool
+- Upgrade all packages to latest version
 
 ## [0.6.11] - 2018-07-02
 
