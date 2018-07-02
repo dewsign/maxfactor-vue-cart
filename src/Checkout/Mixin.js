@@ -760,6 +760,18 @@ export default {
 
         if (!uid) return
 
+        /**
+         * If user has navigated to page with the browser back button
+         * And the server stage for the order is complete
+         * Refresh the page, which will trigger a redirection to /cart
+         * This stop a user clicking back from the complete page and paying for their order again
+         */
+        if (!!window.performance &&
+            window.performance.navigation.type === 2 &&
+            parseInt(Tell.serverVariable(`serverStage.${uid}`), 10) === Stage.COMPLETE) {
+            window.location.reload()
+        }
+
         this.loadCustomCheckout(uid)
 
         const stage = Tell.serverVariable(`stage.${uid}`)
