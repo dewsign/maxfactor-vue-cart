@@ -8,13 +8,10 @@
     ],
     "scripts": {
         "build": "rollup -c",
-        "dev": "NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "hot": "NODE_ENV=development webpack-dev-server --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
         "precommit": "lint-staged",
         "prepublish": "npm run build",
-        "production": "NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "watch": "NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+        "watch": "rollup -mwc"
     },
     "repository": {
         "type": "git",
