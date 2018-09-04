@@ -637,7 +637,7 @@ export default {
                 code: '',
                 description: '',
                 expiry: '',
-                percentage: 0.00,
+                value: 0.00,
             }
         },
 

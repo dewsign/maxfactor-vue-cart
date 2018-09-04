@@ -19,27 +19,32 @@ export default {
         },
 
         cartDiscountPercentage() {
-            if (!this.cartCollection.discount.percentage) return 0.00
+            if (!this.cartCollection.discount.value) return 0.00
 
-            if (this.cartCollection.discount.percentage === '100.00') {
+            if (this.cartCollection.discount.value === '100.00') {
                 this.currentCheckout.payment = { provider: 'free' }
             } else {
                 this.currentCheckout.payment = { provider: '' }
             }
 
-            return parseFloat(this.cartCollection.discount.percentage)
+            return parseFloat(this.cartCollection.discount.value)
         },
 
         cartDiscountTotal() {
-            if (!this.cartCollection.discount.percentage) return 0.00
+            if (!this.cartCollection.discount.value) return 0.00
+
+            if (this.cartCollection.discount.type === 'monetary') {
+                return Make.money(this.cartCollection.discount.value)
+            }
 
             return Make.money(this.cartNetTotal * (this.cartDiscountPercentage / 100.0))
         },
 
         cartSubTotal() {
-            const totalItemsIncTax = this.itemsCollection.sum(item =>
-                this.taxTotal(item.quantity * item.unitPrice *
-                    (1.00 - (this.cartDiscountPercentage / 100.0)), item.taxRate))
+            let totalItemsIncTax = this.itemsCollection.sum(item =>
+                this.taxTotal(item.quantity * item.unitPrice, item.taxRate))
+
+            totalItemsIncTax -= this.cartDiscountTotal
 
             return Make.money(totalItemsIncTax + parseFloat(this.cartShippingTotal(true)))
         },
