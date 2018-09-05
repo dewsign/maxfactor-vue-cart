@@ -19,25 +19,34 @@ export default {
         },
 
         cartDiscountPercentage() {
-            if (!this.cartCollection.discount.value) return 0.00
+            if (!this.cartCollection.discount.percentage) return 0.00
 
-            if (this.cartCollection.discount.value === '100.00') {
+            if (this.cartCollection.discount.percentage === '100.00') {
                 this.currentCheckout.payment = { provider: 'free' }
             } else {
                 this.currentCheckout.payment = { provider: '' }
             }
 
-            return parseFloat(this.cartCollection.discount.value)
+            return parseFloat(this.cartCollection.discount.percentage)
         },
 
         cartDiscountTotal() {
-            if (!this.cartCollection.discount.value) return 0.00
+            if (!this.cartCollection.discount.monetary &&
+                !this.cartCollection.discount.percentage) { return 0.00 }
 
-            if (this.cartCollection.discount.type === 'monetary') {
-                return Make.money(this.cartCollection.discount.value)
+            if (this.discountType === 'monetary') {
+                return Make.money(this.cartCollection.discount.monetary)
             }
 
             return Make.money(this.cartNetTotal * (this.cartDiscountPercentage / 100.0))
+        },
+
+        /**
+         * Figure out the discount type
+         */
+        discountType() {
+            return this.cartCollection.discount.monetary &&
+                this.cartCollection.discount.monetary > 0 ? 'monetary' : 'percentage'
         },
 
         cartSubTotal() {

@@ -53,7 +53,8 @@ export const DiscountData = {
     code: '',
     description: '',
     expiry: '',
-    value: 0.00,
+    monetary: null,
+    percentage: null,
 }
 
 export const ShippingMethodData = {
