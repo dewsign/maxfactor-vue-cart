@@ -412,6 +412,17 @@ export default {
         },
 
         /**
+         * Update discount after server validation
+         *
+         * @param {string} checkoutId
+         */
+        updateDiscountDetails(checkoutId) {
+            if (Tell.serverVariable(`checkout.discount.${checkoutId}`)) {
+                this.currentCheckout.discount = Tell.serverVariable(`checkout.discount.${checkoutId}`)
+            }
+        },
+
+        /**
          * Load and activate custom checkout if accessed and available
          */
         loadCustomCheckout(checkoutId) {
@@ -428,6 +439,7 @@ export default {
                 this.updateUserDetails(checkoutId)
                 this.updateBillingDetails(checkoutId)
                 this.updateShippingDetails(checkoutId)
+                this.updateDiscountDetails(checkoutId)
 
                 /**
                  * Don't update active cart if order is complete
@@ -448,6 +460,7 @@ export default {
             newCart.shipping = Tell.serverVariable(`checkout.shipping.${checkoutId}`)
             newCart.billing = Tell.serverVariable(`checkout.billing.${checkoutId}`)
             newCart.user = Tell.serverVariable(`checkout.user.${checkoutId}`)
+            newCart.discount = Tell.serverVariable(`checkout.discount.${checkoutId}`)
 
             /**
              * Don't update active cart if order is complete

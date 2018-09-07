@@ -55,7 +55,12 @@ export default {
 
         cartDiscountTotal() {
             if (!this.cartCollection.discount.monetary &&
-                !this.cartCollection.discount.percentage) { return 0.00 }
+                !this.cartCollection.discount.percentage) {
+                // No discount is set customer shouldn't be allowed a free order
+                if (this.currentCheckout.payment.provider === 'free') this.currentCheckout.payment.provider = ''
+
+                return 0.00
+            }
 
             if (this.discountType === 'monetary') {
                 return Make.money(this.cartDiscountMonetary)
