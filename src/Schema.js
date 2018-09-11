@@ -50,6 +50,7 @@ export const UserData = {
 }
 
 export const DiscountData = {
+    id: 0,
     code: '',
     description: '',
     expiry: '',

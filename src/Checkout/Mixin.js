@@ -534,7 +534,9 @@ export default {
          * @param { object } paymentResponse
          */
         hasSuccessfulPayment(paymentResponse) {
-            return paymentResponse.status === 'succeeded' || paymentResponse.PAYMENTINFO_0_PAYMENTSTATUS === 'Completed'
+            return paymentResponse.status === 'succeeded' ||
+                paymentResponse.freeorder === 'success' ||
+                paymentResponse.PAYMENTINFO_0_PAYMENTSTATUS === 'Completed'
         },
 
         /**
@@ -647,6 +649,7 @@ export default {
                 result: {},
             }
             this.activeCartCollection.discount = {
+                id: 0,
                 code: '',
                 description: '',
                 expiry: '',
