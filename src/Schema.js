@@ -56,6 +56,7 @@ export const DiscountData = {
     expiry: '',
     monetary: null,
     percentage: null,
+    error: null,
 }
 
 export const ShippingMethodData = {
