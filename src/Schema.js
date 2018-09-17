@@ -50,10 +50,13 @@ export const UserData = {
 }
 
 export const DiscountData = {
+    id: 0,
     code: '',
     description: '',
     expiry: '',
-    percentage: 0.00,
+    monetary: null,
+    percentage: null,
+    error: null,
 }
 
 export const ShippingMethodData = {
