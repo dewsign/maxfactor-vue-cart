@@ -48,7 +48,7 @@ export default {
                 return this.cartCollection.discount.monetary - codeRemainder
             }
 
-            if (this.currentCheckout.payment.provider === 'free') this.currentCheckout.payment.provider = ''
+            this.currentCheckout.payment = { provider: '' }
 
             return parseFloat(this.cartCollection.discount.monetary)
         },
