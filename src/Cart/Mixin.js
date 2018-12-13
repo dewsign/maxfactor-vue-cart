@@ -23,8 +23,6 @@ export default {
 
             if (this.cartCollection.discount.percentage === '100.00') {
                 this.currentCheckout.payment = { provider: 'free' }
-            } else {
-                this.currentCheckout.payment = { provider: '' }
             }
 
             return parseFloat(this.cartCollection.discount.percentage)
