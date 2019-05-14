@@ -14,8 +14,7 @@ export default {
          * Get the total amount for all items in the cart
          */
         cartNetTotal() {
-            return Make.money(this.itemsCollection.sum(item =>
-                item.quantity * item.unitPrice))
+            return Make.money(this.itemsCollection.sum(item => item.quantity * item.unitPrice))
         },
 
         cartDiscountPercentage() {
@@ -34,8 +33,9 @@ export default {
         cartDiscountMonetary() {
             if (!this.cartCollection.discount.monetary) return 0.00
 
-            let totalItemsIncTax = this.itemsCollection.sum(item =>
-                this.taxTotal(item.quantity * item.unitPrice, item.taxRate))
+            let totalItemsIncTax = this
+                .itemsCollection
+                .sum(item => this.taxTotal(item.quantity * item.unitPrice, item.taxRate))
 
             totalItemsIncTax += parseFloat(this.cartShippingTotal(true))
 
@@ -52,8 +52,9 @@ export default {
         },
 
         cartDiscountTotal() {
-            if (!this.cartCollection.discount.monetary &&
-                !this.cartCollection.discount.percentage) {
+            if (!this.cartCollection.discount
+                || (!this.cartCollection.discount.monetary
+                    && !this.cartCollection.discount.percentage)) {
                 // No discount is set customer shouldn't be allowed a free order
                 if (this.currentCheckout.payment.provider === 'free') this.currentCheckout.payment.provider = ''
 
@@ -71,13 +72,14 @@ export default {
          * Figure out the discount type
          */
         discountType() {
-            return this.cartCollection.discount.monetary &&
-                this.cartCollection.discount.monetary > 0 ? 'monetary' : 'percentage'
+            return this.cartCollection.discount.monetary
+                && this.cartCollection.discount.monetary > 0 ? 'monetary' : 'percentage'
         },
 
         cartSubTotal() {
-            let totalItemsIncTax = this.itemsCollection.sum(item =>
-                this.taxTotal(item.quantity * item.unitPrice, item.taxRate))
+            let totalItemsIncTax = this
+                .itemsCollection
+                .sum(item => this.taxTotal(item.quantity * item.unitPrice, item.taxRate))
 
             totalItemsIncTax += parseFloat(this.cartShippingTotal(true))
             totalItemsIncTax -= this.cartDiscountTotal
@@ -86,8 +88,8 @@ export default {
         },
 
         cartTaxTotal() {
-            return Make.money(this.cartSubTotal -
-                (this.cartNetTotal - this.cartDiscountTotal) - this.cartShippingTotal(false))
+            return Make.money(this.cartSubTotal
+                - (this.cartNetTotal - this.cartDiscountTotal) - this.cartShippingTotal(false))
         },
 
         taxShouldApply() {
@@ -186,8 +188,9 @@ export default {
 
             this.emit('removeditemfromcart', item)
 
-            this.activeCartCollection.items = this.itemsCollection.filter(cartItem =>
-                JSON.stringify(cartItem) !== JSON.stringify(findItem)).all()
+            this.activeCartCollection.items = this
+                .itemsCollection
+                .filter(cartItem => JSON.stringify(cartItem) !== JSON.stringify(findItem)).all()
         },
 
         cartShippingTotal(includeTax = false) {
