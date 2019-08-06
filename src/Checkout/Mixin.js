@@ -537,7 +537,8 @@ export default {
                     this.currentCheckout.payment.result = response.data
                     this.continueCheckout()
                 }
-            }).catch(() => {
+            }).catch(({ response }) => {
+                this.form.errors = response.data
                 this.formIsLoading = false
             })
         },
