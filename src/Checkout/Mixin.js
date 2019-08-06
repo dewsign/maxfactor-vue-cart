@@ -45,7 +45,7 @@ export default {
          * Quickly access to the payment section
          */
         payment() {
-            return this.currentCheckout.payment
+            return this.currentCheckout ? this.currentCheckout.payment : {}
         },
 
         hasMounted: {
@@ -77,7 +77,7 @@ export default {
         },
 
         hasPaymentToken() {
-            return collect(this.currentCheckout.payment.token).contains('id')
+            return collect(this.currentCheckout.payment.paymentMethod).contains('id')
         },
 
         shippingCountry() {
@@ -85,7 +85,7 @@ export default {
         },
 
         useShippingForBilling() {
-            return this.currentCheckout.useShipping
+            return this.currentCheckout ? this.currentCheckout.useShipping : false
         },
 
         taxChargable() {
@@ -275,8 +275,8 @@ export default {
          */
         setActiveCheckout(id, force = false) {
             if (
-                this.currentCheckout.uid === this.checkoutCollection(id).first().uid &&
-                !force
+                this.currentCheckout.uid === this.checkoutCollection(id).first().uid
+                && !force
             ) {
                 return
             }
@@ -519,6 +519,20 @@ export default {
                 /**
                  * Check for Stripe or PayPal success statuses
                  */
+                if (response.data.paymentResponse.status === 'requires_source_action'
+                    || response.data.paymentResponse.status === 'requires_action') {
+                    const redirectUrl = response.data
+                        .paymentResponse
+                        .next_action
+                        .redirect_to_url
+                        .url
+
+                    this.progressCheckoutStage()
+                    window.location.href = redirectUrl
+
+                    return
+                }
+
                 if (this.hasSuccessfulPayment(response.data.paymentResponse)) {
                     this.currentCheckout.payment.result = response.data
                     this.continueCheckout()
@@ -534,9 +548,9 @@ export default {
          * @param { object } paymentResponse
          */
         hasSuccessfulPayment(paymentResponse) {
-            return paymentResponse.status === 'succeeded' ||
-                paymentResponse.freeorder === 'success' ||
-                paymentResponse.PAYMENTINFO_0_PAYMENTSTATUS === 'Completed'
+            return paymentResponse.status === 'succeeded'
+                || paymentResponse.freeorder === 'success'
+                || paymentResponse.PAYMENTINFO_0_PAYMENTSTATUS === 'Completed'
         },
 
         /**
@@ -644,7 +658,7 @@ export default {
             }
             this.activeCartCollection.payment = {
                 provider: {},
-                token: {},
+                paymentMethod: {},
                 payerid: {},
                 result: {},
             }
@@ -694,22 +708,22 @@ export default {
              * Current checkout stage is greater than or equal to the stage they are trying to view
              * AND Current checkout stage less than the complete stage
              */
-            if (this.currentCheckout.stage >= checkoutView &&
-                this.currentCheckout.stage < Stage.COMPLETE) return false
+            if (this.currentCheckout.stage >= checkoutView
+                && this.currentCheckout.stage < Stage.COMPLETE) return false
 
             /**
              * Current server stage is greater than or equal to the stage they are trying to view
              * AND Current server stage less than the complete stage
              * This stops a customer placing an order twice
              */
-            if (serverStage >= checkoutView &&
-                serverStage < Stage.COMPLETE) return false
+            if (serverStage >= checkoutView
+                && serverStage < Stage.COMPLETE) return false
 
             /**
              * Allow the customer to load the complete page if server stage is complete
              */
-            if (checkoutView === Stage.COMPLETE &&
-                serverStage === Stage.COMPLETE) return false
+            if (checkoutView === Stage.COMPLETE
+                && serverStage === Stage.COMPLETE) return false
 
             /**
              * We set the loading state to true before making a client side redirect here to stop
@@ -783,9 +797,9 @@ export default {
          * Refresh the page, which will trigger a redirection to /cart
          * This stop a user clicking back from the complete page and paying for their order again
          */
-        if (!!window.performance &&
-            window.performance.navigation.type === 2 &&
-            parseInt(Tell.serverVariable(`serverStage.${uid}`), 10) === Stage.COMPLETE) {
+        if (!!window.performance
+            && window.performance.navigation.type === 2
+            && parseInt(Tell.serverVariable(`serverStage.${uid}`), 10) === Stage.COMPLETE) {
             window.location.reload()
         }
 
