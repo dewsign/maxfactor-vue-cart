@@ -77,7 +77,7 @@ export default {
         },
 
         hasPaymentToken() {
-            return collect(this.currentCheckout.payment.paymentMethod).contains('id')
+            return collect(this.currentCheckout.payment.token).contains('id')
         },
 
         shippingCountry() {
@@ -418,7 +418,14 @@ export default {
          */
         updateDiscountDetails(checkoutId) {
             if (Tell.serverVariable(`checkout.discount.${checkoutId}`)) {
-                this.currentCheckout.discount = Tell.serverVariable(`checkout.discount.${checkoutId}`)
+                this.currentCheckout.discount = Tell.serverVariable(`checkout.discount.${checkoutId}`) || {
+                    id: 0,
+                    code: '',
+                    description: '',
+                    expiry: '',
+                    monetary: null,
+                    percentage: null,
+                }
             }
         },
 
@@ -460,7 +467,14 @@ export default {
             newCart.shipping = Tell.serverVariable(`checkout.shipping.${checkoutId}`)
             newCart.billing = Tell.serverVariable(`checkout.billing.${checkoutId}`)
             newCart.user = Tell.serverVariable(`checkout.user.${checkoutId}`)
-            newCart.discount = Tell.serverVariable(`checkout.discount.${checkoutId}`)
+            newCart.discount = Tell.serverVariable(`checkout.discount.${checkoutId}`) || {
+                id: 0,
+                code: '',
+                description: '',
+                expiry: '',
+                monetary: null,
+                percentage: null,
+            }
 
             /**
              * Don't update active cart if order is complete
