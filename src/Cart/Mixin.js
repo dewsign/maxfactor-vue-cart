@@ -244,7 +244,7 @@ export default {
 
             itemInCart.quantity -= amount
 
-            if (itemInCart.quantity.valueOf() < forceQuantityMin || itemInCart.quantityMin) {
+            if (itemInCart.quantity.valueOf() < (forceQuantityMin || itemInCart.quantityMin)) {
                 this.removeItemFromCart(item)
             }
         },
