@@ -39,6 +39,7 @@
     },
     "dependencies": {
         "babel-core": "^6.26.3",
+        "babel-plugin-transform-object-rest-spread": "^6.26.0",
         "collect.js": "^4.16.3",
         "maxfactor-vue-datastore": "^1.0.0",
         "maxfactor-vue-support": "^1.1.3",

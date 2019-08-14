@@ -775,16 +775,19 @@ export default {
                     this.form.errors = response.data.errors
                 }
 
-                if (response.data.countryCode && this.currentCheckout.stage < Stage.SHIPPING) {
-                    this.currentCheckout.taxApplicable = response.data.taxApplicable
-                    this.currentCheckout.taxOptional = response.data.taxOptional
-                    this.currentCheckout.shippingMethod = {
-                        id: 0,
-                        name: '',
-                        price: 0.00,
-                        taxRate: 0.00,
-                        poa: false,
-                    }
+                if (response.data.countryCode && this.currentCheckout.stage <= Stage.SHIPPING) {
+                    this.$set(this, 'currentCheckout', {
+                        ...this.currentCheckout,
+                        taxApplicable: response.data.taxApplicable,
+                        taxOptional: response.data.taxOptional,
+                        shippingMethod: {
+                            id: 0,
+                            name: '',
+                            price: 0.00,
+                            taxRate: 0.00,
+                            poa: false,
+                        },
+                    })
                 }
             }).catch((error) => {
                 this.formIsLoading = false
