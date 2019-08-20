@@ -35,7 +35,9 @@ export default {
 
             let totalItemsIncTax = this
                 .itemsCollection
-                .sum(item => this.taxTotal(item.quantity * item.unitPrice, item.taxRate))
+                .sum(item => parseFloat(
+                    this.taxTotal(item.quantity * item.unitPrice, item.taxRate, true),
+                ))
 
             totalItemsIncTax += parseFloat(this.cartShippingTotal(true, true))
 
@@ -83,7 +85,9 @@ export default {
         cartSubTotal() {
             let totalItemsIncTax = this
                 .itemsCollection
-                .sum(item => this.taxTotal(item.quantity * item.unitPrice, item.taxRate, true))
+                .sum(item => parseFloat(
+                    this.taxTotal(item.quantity * item.unitPrice, item.taxRate, true),
+                ))
 
             totalItemsIncTax = parseFloat(totalItemsIncTax)
                 + parseFloat(this.cartShippingTotalIncTax)
