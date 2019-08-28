@@ -77,7 +77,7 @@ export default {
         },
 
         hasPaymentToken() {
-            return collect(this.currentCheckout.payment.token).contains('id')
+            return collect(this.currentCheckout.payment.paymentMethod).contains('id')
         },
 
         shippingCountry() {
