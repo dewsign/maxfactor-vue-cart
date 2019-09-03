@@ -18,7 +18,7 @@ export default {
         },
 
         cartDiscountPercentage() {
-            if (!this.cartCollection.discount.percentage) return 0.00
+            if (!this.cartCollection.discount.percentage) return parseFloat(0.00)
 
             if (this.cartCollection.discount.percentage === '100.00') {
                 this.currentCheckout.payment = { provider: 'free' }
@@ -31,13 +31,15 @@ export default {
          * Get the monetary discount.  If discount is more than order value, limit to order value
          */
         cartDiscountMonetary() {
-            if (!this.cartCollection.discount.monetary) return 0.00
+            if (!this.cartCollection.discount.monetary) return parseFloat(0.00)
 
             let totalItemsIncTax = this
                 .itemsCollection
-                .sum(item => this.taxTotal(item.quantity * item.unitPrice, item.taxRate))
+                .sum(item => parseFloat(
+                    this.taxTotal(item.quantity * item.unitPrice, item.taxRate, true),
+                ))
 
-            totalItemsIncTax += parseFloat(this.cartShippingTotal(true))
+            totalItemsIncTax += parseFloat(this.cartShippingTotal(true, true))
 
             const codeRemainder = this.cartCollection.discount.monetary - totalItemsIncTax
 
@@ -56,16 +58,20 @@ export default {
                 || (!this.cartCollection.discount.monetary
                     && !this.cartCollection.discount.percentage)) {
                 // No discount is set customer shouldn't be allowed a free order
-                if (this.currentCheckout.payment.provider === 'free') this.currentCheckout.payment.provider = ''
+                if (this.currentCheckout.payment.provider === 'free') {
+                    this.currentCheckout.payment.provider = ''
+                }
 
-                return 0.00
+                return parseFloat(0.00)
             }
 
             if (this.discountType === 'monetary') {
-                return Make.money(this.cartDiscountMonetary)
+                return parseFloat(this.cartDiscountMonetary || 0.00)
             }
 
-            return Make.money(this.cartNetTotal * (this.cartDiscountPercentage / 100.0))
+            if (!this.cartDiscountPercentage) return parseFloat(0.00)
+
+            return parseFloat(this.cartNetTotal * (this.cartDiscountPercentage / 100.0))
         },
 
         /**
@@ -79,17 +85,29 @@ export default {
         cartSubTotal() {
             let totalItemsIncTax = this
                 .itemsCollection
-                .sum(item => this.taxTotal(item.quantity * item.unitPrice, item.taxRate))
+                .sum(item => parseFloat(
+                    this.taxTotal(item.quantity * item.unitPrice, item.taxRate, true),
+                ))
 
-            totalItemsIncTax += parseFloat(this.cartShippingTotal(true))
-            totalItemsIncTax -= this.cartDiscountTotal
+            totalItemsIncTax = parseFloat(totalItemsIncTax)
+                + parseFloat(this.cartShippingTotalIncTax)
+            totalItemsIncTax -= parseFloat(this.cartDiscountTotal)
 
             return Make.money(totalItemsIncTax)
         },
 
         cartTaxTotal() {
             return Make.money(this.cartSubTotal
-                - (this.cartNetTotal - this.cartDiscountTotal) - this.cartShippingTotal(false))
+                - (this.cartNetTotal - this.cartDiscountTotal)
+                - this.cartShippingTotal(false))
+        },
+
+        cartShippingTotalExcTax() {
+            return this.cartShippingTotal(false)
+        },
+
+        cartShippingTotalIncTax() {
+            return this.cartShippingTotal(true, true)
         },
 
         taxShouldApply() {
@@ -193,13 +211,13 @@ export default {
                 .filter(cartItem => JSON.stringify(cartItem) !== JSON.stringify(findItem)).all()
         },
 
-        cartShippingTotal(includeTax = false) {
-            if (!includeTax) return this.shippingMethodCollection.price || 0.00
+        cartShippingTotal(includeTax = false, inclusive = false) {
+            if (!includeTax) return Make.money(this.shippingMethodCollection.price || 0.00)
 
             return Make.money(this.taxTotal(
                 this.shippingMethodCollection.price,
                 this.shippingMethodCollection.taxRate,
-                true,
+                inclusive,
             ) || 0.00)
         },
 
@@ -230,7 +248,7 @@ export default {
 
             itemInCart.quantity -= amount
 
-            if (itemInCart.quantity.valueOf() < forceQuantityMin || itemInCart.quantityMin) {
+            if (itemInCart.quantity.valueOf() < (forceQuantityMin || itemInCart.quantityMin)) {
                 this.removeItemFromCart(item)
             }
         },
@@ -279,14 +297,16 @@ export default {
         },
 
         taxTotal(amount, rate = null, inclusive = null) {
-            const taxRate = (rate !== null) ? rate : this.taxRate
+            const taxRate = parseFloat((rate !== null) ? rate : this.taxRate)
 
             if (window.location.href.includes('/checkout/') && this.taxChargable) {
-                return Make.money(parseFloat(amount) + (parseFloat(amount) * taxRate))
+                return Make.money(parseFloat(inclusive ? amount : 0)
+                    + (parseFloat(amount) * taxRate))
             }
 
             if (this.taxCanApply && (inclusive || this.taxShouldApply) && !window.location.href.includes('/checkout/')) {
-                return Make.money(parseFloat(amount) + (parseFloat(amount) * taxRate))
+                return Make.money(parseFloat(inclusive ? amount : 0)
+                    + (parseFloat(amount) * taxRate))
             }
 
             return Make.money(amount)

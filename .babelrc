@@ -3,5 +3,8 @@
         [
             "es2015-rollup"
         ]
+      ],
+      "plugins": [
+          "babel-plugin-transform-object-rest-spread"
       ]
 }
