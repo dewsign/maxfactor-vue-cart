@@ -15,7 +15,7 @@ A lightweight Vue shopping cart with checkout. Requires compatible back-end solu
 
 ### Dependencies
 
-* [Maxfactor Laravel Checkout ^2.0](https://github.com/dewsign/maxfactor-laravel-checkout)
+* [Maxfactor Laravel Checkout ^3.0](https://github.com/dewsign/maxfactor-laravel-checkout)
 
 ### Configuration and development notes
 
