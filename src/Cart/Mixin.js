@@ -14,7 +14,7 @@ export default {
          * Get the total amount for all items in the cart
          */
         cartNetTotal() {
-            return Make.money(this.itemsCollection.sum(item => item.quantity * item.unitPrice))
+            return parseFloat(this.itemsCollection.sum(item => item.quantity * item.unitPrice))
         },
 
         cartDiscountPercentage() {
@@ -93,11 +93,11 @@ export default {
                 + parseFloat(this.cartShippingTotalIncTax)
             totalItemsIncTax -= parseFloat(this.cartDiscountTotal)
 
-            return Make.money(totalItemsIncTax)
+            return parseFloat(totalItemsIncTax)
         },
 
         cartTaxTotal() {
-            return Make.money(this.cartSubTotal
+            return parseFloat(this.cartSubTotal
                 - (this.cartNetTotal - this.cartDiscountTotal)
                 - this.cartShippingTotal(false))
         },
