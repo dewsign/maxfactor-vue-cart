@@ -11,6 +11,11 @@ class Make {
         if (amount <= 0) return parseFloat(0).toFixed(2)
         return parseFloat(amount).toFixed(2)
     }
+
+    static round(value, decimals = 2) {
+        const rounded = Math.round(`${value}e${decimals}`)
+        return Number(`${rounded}e-${decimals}`)
+    }
 }
 
 export default Make

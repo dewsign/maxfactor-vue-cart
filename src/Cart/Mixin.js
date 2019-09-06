@@ -31,7 +31,7 @@ export default {
          * Get the monetary discount.  If discount is more than order value, limit to order value
          */
         cartDiscountMonetary() {
-            if (!this.cartCollection.discount.monetary) return parseFloat(0.00)
+            if (!this.cartCollection.discount.monetary) return Make.round(0.00)
 
             let totalItemsIncTax = this
                 .itemsCollection
@@ -50,7 +50,7 @@ export default {
 
             if (this.currentCheckout.payment.provider === 'free') this.currentCheckout.payment.provider = ''
 
-            return parseFloat(this.cartCollection.discount.monetary)
+            return Make.round(this.cartCollection.discount.monetary)
         },
 
         cartDiscountTotal() {
@@ -71,7 +71,7 @@ export default {
 
             if (!this.cartDiscountPercentage) return parseFloat(0.00)
 
-            return parseFloat(this.cartNetTotal * (this.cartDiscountPercentage / 100.0))
+            return Make.round(this.cartNetTotal * (this.cartDiscountPercentage / 100.0))
         },
 
         /**
@@ -93,7 +93,7 @@ export default {
                 + parseFloat(this.cartShippingTotalIncTax)
             totalItemsIncTax -= parseFloat(this.cartDiscountTotal)
 
-            return parseFloat(totalItemsIncTax)
+            return Make.round(parseFloat(totalItemsIncTax), 2)
         },
 
         cartTaxTotal() {
