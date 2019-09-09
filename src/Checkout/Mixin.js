@@ -401,13 +401,21 @@ export default {
         },
 
         /**
-         * Load and user details from server variables
+         * Load and user details from server variables by merging the server address
+         * into the current checkout address. Does not load null values from server.
          *
          * @param {string} checkoutId
          */
         updateShippingDetails(checkoutId) {
             if (Tell.serverVariable(`checkout.shipping.${checkoutId}`)) {
-                this.currentCheckout.shipping = Tell.serverVariable(`checkout.shipping.${checkoutId}`)
+                const serverAddress = collect(Tell.serverVariable(`checkout.shipping.${checkoutId}`))
+                    .filter(value => value !== null)
+                    .all()
+
+                this.currentCheckout.shipping = {
+                    ...this.currentCheckout.shipping,
+                    ...serverAddress,
+                }
             }
         },
 
