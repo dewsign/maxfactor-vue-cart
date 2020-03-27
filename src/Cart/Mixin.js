@@ -103,7 +103,7 @@ export default {
                 .sum((item) => {
                     let itemTotal = item.quantity * item.unitPrice
                     if (this.cartDiscountPercentage) {
-                        itemTotal *= this.cartDiscountPercentage / 100.0
+                        itemTotal -= itemTotal * (this.cartDiscountPercentage / 100.0)
                     }
                     return parseFloat(this.taxTotal(itemTotal, item.taxRate, true))
                 })
