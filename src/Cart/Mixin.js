@@ -39,7 +39,7 @@ export default {
         },
 
         calculatedDiscountPercentageFromMonetary() {
-            return this.cartCollection.discount.monetary || 0 / this.cartNetTotal * 100
+            return (this.cartCollection.discount.monetary || 0) / this.cartNetTotal * 100
         },
 
         /**
